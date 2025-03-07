@@ -35,6 +35,8 @@ class lPlayer extends Player {
       this.say = null
     }
     if (!inmenu && keys['t']) {
+      this.say = '...';
+      this.saytime = Date.now() + 3e5;
       inputbox = createInput("");
       inputbox.position(20, 20);
       inputbox.elt.focus();
