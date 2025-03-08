@@ -1,0 +1,23 @@
+{
+  "name": "voertex",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geodebreaker/voertex.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/geodebreaker/voertex/issues"
+  },
+  "homepage": "https://github.com/geodebreaker/voertex#readme",
+  "description": "",
+  "dependencies": {
+    "node-static": "^0.7.11",
+    "ws": "^8.18.1"
+  }
+}
