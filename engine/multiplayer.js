@@ -1,20 +1,28 @@
-let players = {};
-let bufferlim = 4;
-let pname = new Array(6).fill(0).map(_ =>
-  'qwertyuiopasdfghjklzxcvbnm'[Math.floor(Math.random() * 26)]).join('');
+let players = {}; //run if(pname=='intercourse')ws.close()
+let bufferlim = 7;
+let buffertime = 200 / 6;
+let buffersendlim = 6;
+let wshasopened = false;
+let wsfail = '';
+let pname;// = new Array(6).fill(0).map(_ =>
+//'qwertyuiopasdfghjklzxcvbnm'[Math.floor(Math.random() * 26)]).join('');
 
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
     if (!plr.enabled) return;
-    if (plr.mp.time + 10e3 < Date.now())
+    if (plr.mp.time - Date.now() > 60e3)
+      return delete players[plr.name];
+    if (plr.mp.time - Date.now() > 10e3)
       return plr.enabled = false;
+    else plr.enabled = true;
     plr.tick(dt);
   });
 }
 
 function createPacket() {
+  if (!player || ws.readyState == WebSocket.closed) return;
   let packet = {
-    buffer: player?.buffer,
+    buffer: player.buffer,
     t: Date.now(),
   };
   wssend({ type: 'packet', packet })
@@ -29,32 +37,45 @@ function recvPackets(packets) {
   })
 }
 
-setInterval(createPacket, 6e2);
-
 let WSURL = new URL(window.location);
 WSURL.protocol = WSURL.protocol == 'http:' ? 'ws' : 'wss';
 WSURL = WSURL.href;
 let ws = { readyState: WebSocket.CLOSED };
 
 function connect() {
+  ws.onclose = null;
+  if (ws.close) ws.close();
   ws = new WebSocket(WSURL);
   ws.onopen = () => {
     console.log('connected');
-    wssend({ type: 'join', name: pname, room: '' })
+    wssend({ type: 'join', name: pname })
   };
   ws.onclose = () => {
-    console.log('disconnected');
-    setTimeout(connect, 10e3);
+    if (wshasopened) {
+      console.log('disconnected');
+      setTimeout(connect, 10e3);
+    } else {
+      console.log('failed');
+    }
   };
   ws.onmessage = y => {
     let x = JSON.parse(y.data);
-    console.log('<', x);
+    if (x.type != 'update') console.log('<', x);
     switch (x.type) {
       case 'update':
         wsupdate(x);
         break;
       case 'run':
         console.log('running', x.code, eval(x.code))
+        break;
+      case 'connected':
+        if (!wshasopened) closeTitleScreen();
+        wshasopened = true;
+        wsupdate(x);
+        break;
+      case 'fail':
+        wsfail = x.error;
+        wshasopened = false;
         break;
     }
   };
@@ -63,7 +84,7 @@ function connect() {
 function wssend(data) {
   if (ws.readyState == WebSocket.OPEN) {
     ws.send(JSON.stringify(data));
-    console.log('<', data);
+    if (data.type != 'packet') console.log('<', data);
   }
 }
 
@@ -74,5 +95,3 @@ function wsupdate(data) {
 function chatMsg(name, data) {
 
 }
-
-connect();

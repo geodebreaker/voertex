@@ -10,6 +10,7 @@ class Player {
   render() {
     if (!this.enabled) return;
     push();
+    stroke(0);
     fill(this.col);
     translate(this.pos.x, -25, this.pos.y);
     box(50);
@@ -29,6 +30,7 @@ class lPlayer extends Player {
     this.sayi = 0;
     this.saytime = 0;
     this.bt = 0;
+    this.bst = 0;
   }
 
   tick(dt) {
@@ -39,7 +41,8 @@ class lPlayer extends Player {
       this.say = '...';
       this.saytime = Date.now() + 3e5;
       inputbox = createInput("");
-      inputbox.position(20, 20);
+      inputbox.position(30, 180);
+      inputbox.size(270, 20);
       inputbox.elt.focus();
       inmenu = true;
       inputbox.elt.onkeydown = e => {
@@ -50,7 +53,7 @@ class lPlayer extends Player {
             wssend({ type: 'run', code: msg.replace('run ', '') });
             this.say = null;
           } else {
-            this.say = msg
+            this.say = msg;
             if (this.say) {
               this.sayi++;
               this.saytime = Date.now() + 60e3;
@@ -72,20 +75,26 @@ class lPlayer extends Player {
     let rotatedDir = createVector(
       moveDir.x * cos(camYaw) - moveDir.y * sin(camYaw),
       moveDir.x * sin(camYaw) + moveDir.y * cos(camYaw)
-    ).mult(dt);
+    ).mult(dt * 0.06);
 
     this.pos.add(rotatedDir);
 
     this.bt += dt || 0;
-    if (this.bt > 1) {
-      this.bt %= 1;
+    if (this.bt > buffertime) {
+      this.bt %= buffertime;
       this.buffer.push({
         x: this.pos.x,
         y: this.pos.y,
         s: this.say,
+        si: this.sayi,
       });
-      if (this.buffer.length == bufferlim)
+      if (this.buffer.length > bufferlim)
         this.buffer.shift();
+      this.bst++;
+      if (this.bst >= buffersendlim) {
+        this.bst = 0;
+        createPacket();
+      }
     }
   }
 }
@@ -102,6 +111,8 @@ class mPlayer extends Player {
     this.mp = mp;
     this.say = say;
     this.sayi = mp.buffer[0]?.si;
+    this.npos = createVector();
+    this.opos = createVector();
   }
 
   update(packet) {
@@ -118,21 +129,33 @@ class mPlayer extends Player {
   tick(dt) {
     this.mp.bit += dt || 0;
     if (!this.mp.bit) this.mp.bit = 0;
-    if (this.mp.bit > 1) {
-      this.mp.bit %= 1;
-      if (this.mp.bi != this.mp.buffer.length - 1)
+    if (this.mp.bit >= buffertime) {
+      this.mp.bit %= buffertime;
+      if (this.mp.bi != this.mp.buffer.length - 1) {
         this.mp.bi++;
+        this.ubuffer();
+      }
     }
+    this.pos.set(this.npos.copy().sub(this.opos).mult(this.mp.bit / buffertime).add(this.opos))
   }
 
   ubuffer() {
     try {
       let buf = this.mp.buffer[this.mp.bi];
+      let nbuf = this.mp.buffer[this.mp.bi + 1];
       this.say = buf?.s;
       this.pos = this.pos.set(buf?.x || 0, buf?.y || 0);
+      if (this.mp.bi > 1)
+        this.opos.set(this.pos);
+      else this.opos.set(this.npos);
       if (this.sayi < buf?.si && this.say)
         chatMsg(this.name, this.say);
       this.sayi = buf.si;
+      if (nbuf) {
+        this.npos.set(nbuf?.x || 0, nbuf?.y || 0);
+      } else {
+        this.npos.set(this.pos);
+      }
     } catch (e) { }
   }
 }

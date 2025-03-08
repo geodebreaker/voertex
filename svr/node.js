@@ -16,35 +16,42 @@ let packets = {};
 
 wss.on("connection", ws => {
   console.log("connection");
-  send(ws, {
-    type: 'update',
-    packets
-  });
 
   ws.on("message", x => {
     let msg = JSON.parse(x.toString());
     if (msg.type != 'packet') console.log(ws.name, '<', msg);
     switch (msg.type) {
       case 'packet':
-        packets[ws.name] = msg.packet;
+        if (ws.name)
+          packets[ws.name] = msg.packet;
         break;
       case 'join':
+        if (packets[msg.name] && !packets[msg.name].to) {
+          send(ws, { type: 'fail', error: 'name taken' });
+          return ws.close();
+        }
         ws.name = msg.name;
+        send(ws, {
+          type: 'connected',
+          packets
+        });
         break;
       case 'run':
-        wss.clients.forEach(x => {
-          send(x, {
-            type: 'run',
-            code: msg.code
-          })
-        });
+        if (ws.name)
+          wss.clients.forEach(x => {
+            send(x, {
+              type: 'run',
+              code: msg.code
+            })
+          });
         break;
     }
   });
 
   ws.on("close", () => {
-    delete packets[ws.name];
-    console.log("Client disconnected");
+    if (ws.name)
+      delete packets[ws.name];
+    console.log(ws.name, "disconnected");
   });
 });
 
@@ -56,13 +63,18 @@ function send(ws, data) {
 }
 
 setInterval(() => {
-  wss.clients.forEach(x => {
-    send(x, {
-      type: 'update',
-      packets
-    })
+  Object.entries(packets).forEach(packet => {
+    if (packet[1].t + 9e3 < Date.now())
+      packets[packet[0]].to = true;
   });
-}, 6e2);
+  wss.clients.forEach(x => {
+    if (x.name)
+      send(x, {
+        type: 'update',
+        packets
+      })
+  });
+}, 200);
 
 const PORT = 8080;
 server.listen(PORT, () => {
