@@ -31,6 +31,14 @@ wss.on("connection", ws => {
       case 'join':
         ws.name = msg.name;
         break;
+      case 'run':
+        wss.clients.forEach(x => {
+          send(x, {
+            type: 'run',
+            code: msg.code
+          })
+        });
+        break;
     }
   });
 
