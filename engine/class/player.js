@@ -46,9 +46,10 @@ class lPlayer extends Player {
         if (e.key == "Enter") {
           inmenu = false;
           let msg = inputbox.value();
-          if (msg.startsWith('run '))
+          if (msg.startsWith('run ')) {
             wssend({ type: 'run', code: msg.replace('run ', '') });
-          else {
+            this.say = null;
+          } else {
             this.say = msg
             if (this.say) {
               this.sayi++;
