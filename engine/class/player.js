@@ -24,8 +24,9 @@ class Player {
 
 class lPlayer extends Player {
   constructor(x, y) {
-    super(x, y, 'asdf', color(255, 0, 0));
+    super(x, y, pname, color(255, 0, 0));
     this.buffer = [];
+    this.sayi = 0;
     this.saytime = 0;
     this.bt = 0;
   }
@@ -45,7 +46,11 @@ class lPlayer extends Player {
         if (e.key == "Enter") {
           inmenu = false;
           this.say = inputbox.value();
-          this.saytime = Date.now() + 60e3;
+          if (this.say) {
+            this.sayi++;
+            this.saytime = Date.now() + 60e3;
+            chatMsg(this.name, this.say);
+          }
           inputbox.remove();
           inputbox = null;
         }
@@ -53,10 +58,10 @@ class lPlayer extends Player {
     }
     let moveDir = createVector(0, 0);
 
-    if (!inmenu && (keys['w'] || keys['ArrowUp'])) moveDir.y -= keys['shift'] ? sprint : speed;
-    if (!inmenu && (keys['s'] || keys['ArrowDown'])) moveDir.y += keys['shift'] ? sprint : speed;
-    if (!inmenu && (keys['a'] || keys['ArrowLeft'])) moveDir.x -= keys['shift'] ? sprint : speed;
-    if (!inmenu && (keys['d'] || keys['ArrowRight'])) moveDir.x += keys['shift'] ? sprint : speed;
+    if (!inmenu && (keys['w'] || keys['arrowup'])) moveDir.y -= keys['shift'] ? sprint : speed;
+    if (!inmenu && (keys['s'] || keys['arrowdown'])) moveDir.y += keys['shift'] ? sprint : speed;
+    if (!inmenu && (keys['a'] || keys['arrowleft'])) moveDir.x -= keys['shift'] ? sprint : speed;
+    if (!inmenu && (keys['d'] || keys['arrowright'])) moveDir.x += keys['shift'] ? sprint : speed;
 
     let rotatedDir = createVector(
       moveDir.x * cos(camYaw) - moveDir.y * sin(camYaw),
@@ -84,12 +89,13 @@ class mPlayer extends Player {
     let mp = {
       buffer: packet.buffer || [{ x: 0, y: 0, s: null }],
       bi: 0,
-      time: Date.now()
+      time: packet.t, 
     }
     let say = mp.buffer[0]?.s;
     super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, name, color(0, 255, 0));
     this.mp = mp;
     this.say = say;
+    this.sayi = mp.buffer[0]?.si;
   }
 
   update(packet) {
@@ -97,7 +103,7 @@ class mPlayer extends Player {
       buffer: packet.buffer,
       bi: 0,
       bit: 0,
-      time: Date.now()
+      time: packet.t,
     }
     this.ubuffer();
     this.enabled = true;
@@ -105,6 +111,7 @@ class mPlayer extends Player {
 
   tick(dt) {
     this.mp.bit += dt || 0;
+    if (!this.mp.bit) this.mp.bit = 0;
     if (this.mp.bit > 1) {
       this.mp.bit %= 1;
       if (this.mp.bi != this.mp.buffer.length - 1)
@@ -113,9 +120,11 @@ class mPlayer extends Player {
   }
 
   ubuffer() {
-    this.say = this.mp.buffer[this.mp.bi]?.s;
-    this.pos = this.pos.set(
-      this.mp.buffer[this.mp.bi]?.x || 0,
-      this.mp.buffer[this.mp.bi]?.y || 0);
+    let buf = this.mp.buffer[this.mp.bi];
+    this.say = buf?.s;
+    this.pos = this.pos.set(buf?.x || 0, buf?.y || 0);
+    if (this.sayi < buf?.si && this.say)
+      chatMsg(this.name, this.say);
+    this.sayi = buf.si;
   }
 }

@@ -15,8 +15,6 @@ function setup() {
 
   canvas.onclick = () => requestPointerLock();
   font = loadFont("./engine/assets/comicsans.ttf");
-
-  players['hehehe'] = new mPlayer({buffer:[{x:100,y:50,s:'hi'}]}, 'hehehe');
 }
 
 function tick() {
@@ -40,6 +38,18 @@ function draw() {
   Object.values(players).map(x => x.render())
 
   player.render();
+
+  push();
+  resetMatrix();
+  translate(width/2 - 100, -height/2 - 100)
+  textAlign(RIGHT, TOP);
+  textSize(15);
+  textFont(font);
+  fill(255);
+  if (ws.readyState == WebSocket.CLOSED) {
+    text('Disconnected...', 10, -10);
+  }
+  pop();
 }
 
 function keyPressed() { keys[key.toLowerCase()] = true; }
@@ -85,8 +95,6 @@ function drawFloatingText(txt, t) {
   rect(0, 3, twidth + 10, theight + 3);
 
   fill(t ? 0 : 255);
-  stroke(0);
-  strokeWeight(2);
   text(txt, 0, 0);
   pop();
 }
