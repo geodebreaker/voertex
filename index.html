@@ -6,12 +6,38 @@
   <script src="./engine/lib/p5.js"></script>
   <script src="./engine/class/player.js"></script>
   <script src="./engine/multiplayer.js"></script>
+  <script src="./engine/gui.js"></script>
   <script src="./engine/screen.js"></script>
   <style>
+    @font-face {
+      font-family: 'Google Sans';
+      src: url('./engine/assets/googlesans.ttf');
+    }
+
     body {
       margin: 0px;
       background: #000;
       overflow: clip;
+    }
+
+    input {
+      color: white;
+      font-family: 'Google Sans';
+      border: 2px solid #0006;
+      background: #4448;
+      outline: none;
+      font-size: 20px;
+      padding: 3px;
+    }
+
+    div {
+      color: white;
+      font-family: 'Google Sans';
+      border: 2px solid #0006;
+      background: #4448;
+      outline: none;
+      font-size: 12px;
+      padding: 3px;
     }
   </style>
 </head>
