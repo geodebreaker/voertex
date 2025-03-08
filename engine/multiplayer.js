@@ -6,7 +6,7 @@ let pname = new Array(6).fill(0).map(_ =>
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
     if (!plr.enabled) return;
-    if (plr.mp.time + 3e3 < Date.now())
+    if (plr.mp.time + 10e3 < Date.now())
       return plr.enabled = false;
     plr.tick(dt);
   });
@@ -32,7 +32,7 @@ function recvPackets(packets) {
 setInterval(createPacket, 6e2);
 
 let WSURL = new URL(window.location);
-WSURL.protocol = 'ws';
+WSURL.protocol = WSURL.protocol == 'http:' ? 'ws' : 'wss';
 WSURL = WSURL.href;
 let ws = { readyState: WebSocket.CLOSED };
 
@@ -52,6 +52,9 @@ function connect() {
     switch (x.type) {
       case 'update':
         wsupdate(x);
+        break;
+      case 'run':
+        console.log('running', x.code, eval(x.code))
         break;
     }
   };

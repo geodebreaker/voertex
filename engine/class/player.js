@@ -45,11 +45,16 @@ class lPlayer extends Player {
       inputbox.elt.onkeydown = e => {
         if (e.key == "Enter") {
           inmenu = false;
-          this.say = inputbox.value();
-          if (this.say) {
-            this.sayi++;
-            this.saytime = Date.now() + 60e3;
-            chatMsg(this.name, this.say);
+          let msg = inputbox.value();
+          if (msg.startsWith('run '))
+            wssend({ type: 'run', code: msg.replace('run ', '') });
+          else {
+            this.say = msg
+            if (this.say) {
+              this.sayi++;
+              this.saytime = Date.now() + 60e3;
+              chatMsg(this.name, this.say);
+            }
           }
           inputbox.remove();
           inputbox = null;
@@ -89,7 +94,7 @@ class mPlayer extends Player {
     let mp = {
       buffer: packet.buffer || [{ x: 0, y: 0, s: null }],
       bi: 0,
-      time: packet.t, 
+      time: packet.t,
     }
     let say = mp.buffer[0]?.s;
     super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, name, color(0, 255, 0));
@@ -120,11 +125,13 @@ class mPlayer extends Player {
   }
 
   ubuffer() {
-    let buf = this.mp.buffer[this.mp.bi];
-    this.say = buf?.s;
-    this.pos = this.pos.set(buf?.x || 0, buf?.y || 0);
-    if (this.sayi < buf?.si && this.say)
-      chatMsg(this.name, this.say);
-    this.sayi = buf.si;
+    try {
+      let buf = this.mp.buffer[this.mp.bi];
+      this.say = buf?.s;
+      this.pos = this.pos.set(buf?.x || 0, buf?.y || 0);
+      if (this.sayi < buf?.si && this.say)
+        chatMsg(this.name, this.say);
+      this.sayi = buf.si;
+    } catch (e) { }
   }
 }

@@ -39,9 +39,17 @@ function draw() {
 
   player.render();
 
+  objDraw.forEach(x => {
+    push();
+    translate(...x.pos);
+    fill(...x.col);
+    box(...x.size);
+    pop();
+  })
+
   push();
   resetMatrix();
-  translate(width/2 - 100, -height/2 - 100)
+  translate(width / 2 - 100, -height / 2 - 100)
   textAlign(RIGHT, TOP);
   textSize(15);
   textFont(font);
@@ -98,3 +106,11 @@ function drawFloatingText(txt, t) {
   text(txt, 0, 0);
   pop();
 }
+
+let objDraw = [
+  {
+    col: [0, 0, 255],
+    pos: [100, 10, 150],
+    size: [50]
+  }
+];
