@@ -10,11 +10,13 @@ let inputbox;
 let firstperson = 1;
 let texturesSrc = ["goober.jpg", "grass.jpg"];
 let textures = {};
+let teapot;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
 
   font = loadFont("./engine/assets/googlesans.ttf");
+  teapot = loadModel("./engine/assets/teapot.obj");
 
   texturesSrc.forEach(x => {
     let y = x.replace(/\..{2,5}$/, '');
@@ -41,6 +43,8 @@ function tick() {
 
 function draw() {
   textFont(font);
+  blendMode(OVERLAY);
+
   if (!titlescreen) {
     background(128, 192, 255);
     tick();
@@ -88,23 +92,40 @@ function draw3D() {
   if (!firstperson)
     player.render();
 
-  objDraw.forEach(x => {
-    push();
-    translate(...x.pos.slice(0, 3));
-    if (x.tex) {
-      texture(textures[x.tex]);
-    } else {
-      fill(...x.col.slice(0, 3));
-    }
-    if (x.col[3] != undefined) {
-      stroke(...x.col.slice(3, 6));
-      strokeWeight(x.col[6] ?? 1);
-    } else {
-      noStroke();
-    }
-    box(...x.pos.slice(3, 6));
-    pop();
-  });
+  let afterdraw = [];
+  objDraw.forEach(x => drawObj(x, afterdraw));
+
+  push();
+  translate(-200, -100, 300)
+  noStroke();
+  scale(25, -25, 25);
+  texture(textures['grass']);
+  model(teapot);
+  pop();
+
+  afterdraw.forEach(x => drawObj(x));
+  pop();
+}
+
+function drawObj(x) {
+  push();
+  if (x.ndt) drawingContext.disable(drawingContext.DEPTH_WRITE);
+  translate(...x.pos.slice(0, 3));
+  if (x.tex) {
+    texture(textures[x.tex]);
+  } else {
+    fill(...x.col.slice(0, 4));
+  }
+  if (x.stk) {
+    stroke(...x.stk.slice(1));
+    strokeWeight(x.stk[0] ?? 1);
+  } else {
+    noStroke();
+  }
+  if (x.pos[4])
+    translate(0, -x.pos[4] / 2, 0)
+  box(...x.pos.slice(3, 6));
+  if (x.ndt) drawingContext.enable(drawingContext.DEPTH_WRITE);
   pop();
 }
 
@@ -181,13 +202,14 @@ function drawFloatingText(txt, t) {
   pop();
 }
 
-let objDraw = [
-  {
-    pos: [100, -60, 150, 50, 50, 50],
-    col: [0, 0, 255]
-  }, {
-    pos: [200, -50, -250, 50, 10, 50],
-    tex: "goober",
-    col: [0, 0, 0, 255, 255, 0, 3]
-  }
-]
+// let objDraw = [
+//   {
+//     pos: [100, -60, 150, 50, 50, 50],
+//     col: [0, 0, 255]
+//   }, {
+//     pos: [200, -50, -250, 50, 10, 50],
+//     tex: "goober",
+//     stk: [3, 255, 255, 0]
+//   }
+// ]
+let objDraw;

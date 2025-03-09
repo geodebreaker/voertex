@@ -35,6 +35,13 @@ wss.on("connection", ws => {
           type: 'connected',
           packets
         });
+        wss.clients.forEach(x => {
+          if (x.name && x != ws)
+            send(x, {
+              type: 'pjoin',
+              name: ws.name
+            })
+        });
         break;
       case 'run':
         if (ws.name)
@@ -49,6 +56,13 @@ wss.on("connection", ws => {
   });
 
   ws.on("close", () => {
+    wss.clients.forEach(x => {
+      if (x.name)
+        send(x, {
+          type: 'pleave',
+          name: ws.name
+        })
+    });
     if (ws.name)
       delete packets[ws.name];
     console.log(ws.name, "disconnected");
