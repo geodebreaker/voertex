@@ -38,6 +38,20 @@ function drawHUD() {
     text('Press [T] to type...', 10, 160);
   }
   pop();
+  push();
+  translate(width - 15, 15);
+  textAlign(RIGHT, TOP);
+  textSize(12);
+  txt = Object.entries(players).map(plr =>
+    (Date.now() - plr[1].mp.time) + ' - ' + plr[0]).join('\n');
+  let twidth = textWidth(txt);
+  let theight = textLeading() * Object.keys(players).length;
+  fill(0, 0, 0, 128);
+  if (Object.keys(players).length)
+    rect(-twidth - 5, -5, twidth + 10, theight + 10);
+  fill(255);
+  text(txt, 0, 0);
+  pop();
 }
 
 function drawTitleScreen() {
@@ -55,15 +69,16 @@ function makeTitleScreen() {
   titlescreen = true;
   inmenu = true;
   tsin = {};
-  tsin.name = createInput('');
+  tsin.name = createInput(pname);
   tsin.name.position(width / 2 - 180, height * .75);
   tsin.name.elt.focus();
   tsin.name.elt.onkeydown = e => {
     if (e.key == "Enter") {
       pname = tsin.name.value();
-      if (pname.length >= 3 && pname.length <= 12)
+      if (pname.length >= 3 && pname.length <= 12) {
+        if (window.localStorage) localStorage.name = pname;
         connect();
-      else
+      } else
         wsfail = 'name needs to be between 3 and 12 chars long.';
     }
   }
@@ -71,7 +86,7 @@ function makeTitleScreen() {
 }
 
 function makeHUD() {
-  chatdiv = createDiv("Hello, this is a div!");
+  chatdiv = createDiv("");
   chatdiv.position(30, 30);
   chatdiv.size(270, 130);
 }

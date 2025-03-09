@@ -1,18 +1,17 @@
-let players = {}; //run if(pname=='intercourse')ws.close()
+let players = {};
 let bufferlim = 7;
 let buffertime = 200 / 6;
 let buffersendlim = 6;
 let wshasopened = false;
 let wsfail = '';
-let pname;// = new Array(6).fill(0).map(_ =>
-//'qwertyuiopasdfghjklzxcvbnm'[Math.floor(Math.random() * 26)]).join('');
+let pname = window.localStorage?.name || '';
 
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
     if (!plr.enabled) return;
-    if (plr.mp.time - Date.now() > 60e3)
-      return delete players[plr.name];
-    if (plr.mp.time - Date.now() > 10e3)
+    // if (plr.mp.time - Date.now() < 60e3)
+    //   return delete players[plr.name];
+    if (Date.now() - plr.mp.time > 20e3)
       return plr.enabled = false;
     else plr.enabled = true;
     plr.tick(dt);
@@ -77,6 +76,13 @@ function connect() {
         wsfail = x.error;
         wshasopened = false;
         break;
+      case 'pjoin':
+        chatMsg(x.name + ' joined');
+        break;
+      case 'pleave':
+        chatMsg(x.name + ' left');
+        delete players[x.name];
+        break;
     }
   };
 }
@@ -93,5 +99,5 @@ function wsupdate(data) {
 }
 
 function chatMsg(name, data) {
-
+  chatdiv.elt.innerText += name + (data ? ': ' + data : '') + '\n';
 }
