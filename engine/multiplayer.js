@@ -103,7 +103,3 @@ function wssend(data) {
 function wsupdate(data) {
   recvPackets(data.packets);
 }
-
-function chatMsg(name, data) {
-  chatdiv.elt.innerText += name + (data ? ': ' + data : '') + '\n';
-}
