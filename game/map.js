@@ -48,13 +48,18 @@ mdlRef.house = {
 
     // door
     {
-      id: "door",
       pos: [0, 1, 150, 82, 152, 8],
-      col: [120, 70, 20, 255],
+      col: [120, 70, 20],
       interact(x) { // allow open and close
-        x.doorstate(x.this);
+        x.this.data.open = !x.this.data.open;
+        x.this.hide = x.this.data.open;
+        x.this.collide = !x.this.data.open;
       },
-      collide: true
+      collide: true,
+      hide: false,
+      data: {
+        open: false
+      }
     },
 
     // windows

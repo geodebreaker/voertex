@@ -41,7 +41,8 @@ function draw3D() {
 		push();
 		translate(marker.x, 0, marker.y);
 		texture(textures.goober);
-		fill(255)
+		fill(255);
+		noStroke();
 		rect(-25, 0, 50, 50);
 		pop();
 		// run marker = player.pos.copy();
@@ -73,6 +74,7 @@ function drawObjs() {
 }
 
 function drawObj(x, y, m) {
+	if (x.hide) return;
 	if (x.dl && y) {
 		return y.push([x, _renderer.uModelMatrix.mat4.slice()]);
 	}
