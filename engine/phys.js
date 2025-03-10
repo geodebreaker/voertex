@@ -1,6 +1,8 @@
 function tryMove(d) {
-  let r = testCollideAll(player.pos);
-  if (!r) player.pos.add(d);
+  let x = testCollideAll(player.pos.copy().add(d.x, 0), 25);
+  let y = testCollideAll(player.pos.copy().add(0, d.y), 25);
+  if (!x) player.pos.add(d.x, 0);
+  if (!y) player.pos.add(0, d.y);
 }
 
 function testCollideAll(P, S) {
@@ -17,6 +19,7 @@ function testCollideAll(P, S) {
 		rotateX(rot[0]);
 		rotateZ(rot[2]);
     let o = mdl.obj.every(x => {
+      if (!x.collide) return true;
       push();
 	    translate(...x.pos.slice(0, 3));
       let s = x.pos.slice(3, 6);
@@ -28,8 +31,7 @@ function testCollideAll(P, S) {
       translate(s.mult(-2));
       p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
       let b = createVector(p[0], p[2]);
-      let cr = testCollide(P, S, a.sub(200, 200), b.sub(200, 200));
-      console.log(cr, P.x, P.y, a.x, a.y, b.x, b.y, testCollideSquare(a, b, P));
+      let cr = testCollide(P, S, a, b);
       pop();
       return !cr;
     });
@@ -46,19 +48,19 @@ function testCollide(k, r, a, b) {
   if (a.x > b.x) [a.x, b.x] = [b.x, a.x];
   if (a.y > b.y) [a.y, b.y] = [b.y, a.y];
   let rs = r * r;
-  return (
-    testCollideSquare(a.x - r, a.y - r, b.x + r, b.y + r)
-  )
   // return (
-  //   testCollideSquare(createVector(a.x, a.y - r), b, k) &&
-  //   testCollideSquare(createVector(a.x - r, a.y), b, k) &&
-  //   testCollideSquare(a, createVector(b.x, b.y + r), k) &&
-  //   testCollideSquare(a, createVector(b.x + r, b.y), k) &&
-  //   testCollideCircle(a.copy(), rs, k) &&
-  //   testCollideCircle(b.copy(), rs, k) &&
-  //   testCollideCircle(createVector(a.x, b.y), rs, k) &&
-  //   testCollideCircle(createVector(b.x, a.y), rs, k)
-  // );
+  //   testCollideSquare(createVector(a.x - r, a.y - r), createVector(b.x + r, b.y + r), k)
+  // )
+  return (
+    testCollideSquare(createVector(a.x, a.y - r), b, k) ||
+    testCollideSquare(createVector(a.x - r, a.y), b, k) ||
+    testCollideSquare(a, createVector(b.x, b.y + r), k) ||
+    testCollideSquare(a, createVector(b.x + r, b.y), k) ||
+    testCollideCircle(a.copy(), rs, k) ||
+    testCollideCircle(b.copy(), rs, k) ||
+    testCollideCircle(createVector(a.x, b.y), rs, k) ||
+    testCollideCircle(createVector(b.x, a.y), rs, k)
+  );
 }
 
 function testCollideSquare(a, b, k) {
@@ -66,5 +68,5 @@ function testCollideSquare(a, b, k) {
 }
 
 function testCollideCircle(a, rs, k) {
-  return a.sub(k).magSq() > rs;
+  return a.sub(k).magSq() <= rs;
 }

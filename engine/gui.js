@@ -98,3 +98,8 @@ function makeHUD() {
   chatdiv.position(30, 30);
   chatdiv.size(270, 130);
 }
+
+function chatMsg(name, data) {
+  chatdiv.elt.innerText += name + (data ? ': ' + data : '') + '\n';
+  chatdiv.elt.scrollTop = chatdiv.elt.scrollHeight;
+}

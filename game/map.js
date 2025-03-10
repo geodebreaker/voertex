@@ -33,17 +33,17 @@ mdlRef.house = {
     {
       pos: [0, 0, -150, 300, 200, 10], // back
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
     {
       pos: [-152.5, 0, 0, 5, 200, 310], // left
       col: [180, 90, 40],
-      colide: true
+      collide: true
     },
     {
       pos: [152.5, 0, 0, 5, 200, 310], // right
       col: [180, 90, 40],
-      colide: true,
+      collide: true,
     },
 
     // door
@@ -54,7 +54,7 @@ mdlRef.house = {
       interact(x) { // allow open and close
         x.doorstate(x.this);
       },
-      colide: true
+      collide: true
     },
 
     // windows
@@ -62,13 +62,13 @@ mdlRef.house = {
       pos: [-80, -99, 150, 52, 52, 8], // left
       col: [128, 192, 255, 64],
       dl: true,
-      colide: true
+      collide: true
     },
     {
       pos: [80, -99, 150, 52, 52, 8], // right
       col: [128, 192, 255, 64],
       dl: true,
-      colide: true
+      collide: true
     },
 
     //front
@@ -79,40 +79,40 @@ mdlRef.house = {
     {
       pos: [0, -150, 150, 300, 50, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
 
     {
       pos: [127.5, -100, 150, 45, 50, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
     {
       pos: [-127.5, -100, 150, 45, 50, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
 
     {
       pos: [47.5, -100, 150, 15, 50, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
     {
       pos: [-47.5, -100, 150, 15, 50, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
 
     {
       pos: [95, 0, 150, 110, 100, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
     {
       pos: [-95, 0, 150, 110, 100, 10],
       col: [200, 100, 50],
-      colide: true
+      collide: true
     },
   ]
 };
