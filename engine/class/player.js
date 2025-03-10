@@ -3,7 +3,7 @@ class Player {
     this.pos = createVector(x, y);
     this.name = name;
     this.enabled = true;
-    this.col = col;
+    this.col = name == 'googer' ? 'goober' : col;
     this.say = null;
   }
 
@@ -11,13 +11,16 @@ class Player {
     if (!this.enabled) return;
     push();
     stroke(0);
-    fill(this.col);
+    if (this.col.__proto__.constructor.name == 'Color')
+      fill(this.col);
+    else
+      texture(textures[this.col]);
     translate(this.pos.x, -25, this.pos.y);
     box(50);
-    drawFloatingText(this.name, false);
+    floatingText(this.name, false);
     if (this.say) {
       translate(0, -35, 0);
-      drawFloatingText(this.say, true);
+      floatingText(this.say, true);
     }
     pop();
   }
@@ -77,7 +80,7 @@ class lPlayer extends Player {
       moveDir.x * sin(camYaw) + moveDir.y * cos(camYaw)
     ).mult(dt * 0.06);
 
-    this.pos.add(rotatedDir);
+    tryMove(rotatedDir);
 
     this.bt += dt || 0;
     if (this.bt > buffertime) {
@@ -108,11 +111,14 @@ class mPlayer extends Player {
     }
     let say = mp.buffer[0]?.s;
     super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, name, color(0, 255, 0));
+    if (name == pname) this.enabled = false;
     this.mp = mp;
     this.say = say;
     this.sayi = mp.buffer[0]?.si;
     this.npos = createVector();
     this.opos = createVector();
+    this.ping = Date.now() - packet.t;
+    this.pingl = [packet.t];
   }
 
   update(packet) {
@@ -123,7 +129,14 @@ class mPlayer extends Player {
       time: packet.t,
     }
     this.ubuffer();
-    this.enabled = true;
+    if (this.name != pname) this.enabled = true;
+    if (this.pingl.length > 5) this.pingl = [];
+    this.pingl.push(Date.now() - packet.t);
+    if (this.pingl.length == 5) {
+      this.ping = 0;
+      this.pingl.forEach(x => this.ping += x);
+      this.ping /= this.pingl.length;
+    }
   }
 
   tick(dt) {
@@ -148,7 +161,7 @@ class mPlayer extends Player {
       if (this.mp.bi > 1)
         this.opos.set(this.pos);
       else this.opos.set(this.npos);
-      if (this.sayi < buf?.si && this.say)
+      if (this.sayi < buf?.si && this.say && this.enabled)
         chatMsg(this.name, this.say);
       this.sayi = buf.si;
       if (nbuf) {

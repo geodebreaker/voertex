@@ -42,26 +42,34 @@ function drawHUD() {
   translate(width - 15, 15);
   textAlign(RIGHT, TOP);
   textSize(12);
-  txt = Object.entries(players).map(plr =>
-    (Date.now() - plr[1].mp.time) + ' - ' + plr[0]).join('\n');
+  txt = Math.floor(1000 / deltaTime) + ' FPS\n' + Object.entries(players).map(plr =>
+    (plr[1].ping) + ' - ' + plr[0]).join('\n');
   let twidth = textWidth(txt);
-  let theight = textLeading() * Object.keys(players).length;
+  let theight = textLeading() * (Object.keys(players).length + 1);
   fill(0, 0, 0, 128);
-  if (Object.keys(players).length)
-    rect(-twidth - 5, -5, twidth + 10, theight + 10);
+  rect(-twidth - 5, -5, twidth + 10, theight + 10);
   fill(255);
   text(txt, 0, 0);
   pop();
 }
 
 function drawTitleScreen() {
+  tsin.name.position(width / 2 - 180, height * .75);
+  tsin.name.size(430, 20);
+
+  textFont(font);
+  fill(255);
   push();
   translate(width / 2 - 250, height * .75);
   textAlign(LEFT, CENTER);
   textSize(18);
-  textFont(font);
-  fill(255);
-  text('Name:', 0, 10)
+  text('Name:', 0, 10);
+  pop();
+  push();
+  translate(width / 2, height * .25);
+  textAlign(CENTER,  CENTER);
+  textSize(70);
+  text('VOERTEX', 0, 0)
   pop();
 }
 
@@ -71,6 +79,7 @@ function makeTitleScreen() {
   tsin = {};
   tsin.name = createInput(pname);
   tsin.name.position(width / 2 - 180, height * .75);
+  tsin.name.size(430, 20);
   tsin.name.elt.focus();
   tsin.name.elt.onkeydown = e => {
     if (e.key == "Enter") {
@@ -82,7 +91,6 @@ function makeTitleScreen() {
         wsfail = 'name needs to be between 3 and 12 chars long.';
     }
   }
-  tsin.name.size(430, 20);
 }
 
 function makeHUD() {
