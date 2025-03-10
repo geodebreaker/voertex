@@ -9,35 +9,41 @@ function testCollideAll(P, S) {
   push();
   resetMatrix();
   let r = !map.objs.every(x => {
-		let mdl = mdlRef[x.name] || { obj: [] };
-		let pos = createVector(...(x.pos || [0]));
-		let rot = x.rot || [0, 0, 0];
-		if (x.rh) rot[1] = x.rh;
-		push();
-		translate(pos);
-		rotateY(rot[1]);
-		rotateX(rot[0]);
-		rotateZ(rot[2]);
+    let mdl = mdlRef[x.name] || { obj: [] };
+    let pos = createVector(...(x.pos || [0]));
+    let rot = x.rot || [0, 0, 0];
+    if (x.rh) rot[1] = x.rh;
+    push();
+    translate(pos);
+    rotateY(rot[1]);
+    rotateX(rot[0]);
+    rotateZ(rot[2]);
     let o = mdl.obj.every(x => {
       if (!x.collide) return true;
       push();
-	    translate(...x.pos.slice(0, 3));
+      translate(...x.pos.slice(0, 3));
       let s = x.pos.slice(3, 6);
       if (s.length == 1) s = [s[0], s[0], s[0]];
-      s = createVector(s[0], 0, s[2]);
-      translate(s.mult(.5));
+      s = createVector(s[0], s[1], s[2]);
+      translate(s.mult(.5, -1, .5));
       let p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
       let a = createVector(p[0], p[2]);
-      translate(s.mult(-2));
+      let y1 = p[1];
+      translate(s.mult(-2, -1, -2));
       p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
       let b = createVector(p[0], p[2]);
+      let y2 = p[1];
       let cr = testCollide(P, S, a, b);
+      if (Math.min(y1, y2) >= 0 || Math.max(y1, y2) < S * -2) {
+        pop();
+        return true;
+      }
       pop();
       return !cr;
     });
-		pop();
+    pop();
     return o;
-	});
+  });
   pop();
   return r;
 }
