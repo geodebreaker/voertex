@@ -1,7 +1,7 @@
 let players = {};
-let bufferlim = 7;
-let buffertime = 200 / 6;
-let buffersendlim = 6;
+let buffersendlim = 5;
+let bufferlim = buffersendlim + 1;
+let buffertime = 200 / buffersendlim; // 200 is also on server side
 let wshasopened = false;
 let wsfail = '';
 let pname = window.localStorage?.name || '';
@@ -28,7 +28,7 @@ function createPacket() {
 }
 
 function recvPackets(packets) {
-  Object.entries(packets).filter(packet => packet[0] != pname).forEach(packet => {
+  Object.entries(packets)/*.filter(packet => packet[0] != pname)*/.forEach(packet => {
     if (players[packet[0]])
       players[packet[0]].update(packet[1]);
     else
@@ -42,18 +42,22 @@ WSURL = WSURL.href;
 let ws = { readyState: WebSocket.CLOSED };
 
 function connect() {
+  talert = 'Connecting...';
   ws.onclose = null;
   if (ws.close) ws.close();
   ws = new WebSocket(WSURL);
   ws.onopen = () => {
+    talert = 'Joining...';
     console.log('connected');
     wssend({ type: 'join', name: pname })
   };
   ws.onclose = () => {
+    talert = '';
     if (wshasopened) {
       console.log('disconnected');
       setTimeout(connect, 10e3);
     } else {
+      wsfail = 'Could not connect to server';
       console.log('failed');
     }
   };
@@ -68,11 +72,13 @@ function connect() {
         console.log('running', x.code, eval(x.code))
         break;
       case 'connected':
+        talert = '';
         if (!wshasopened) closeTitleScreen();
         wshasopened = true;
         wsupdate(x);
         break;
       case 'fail':
+        talert = '';
         wsfail = x.error;
         wshasopened = false;
         break;
