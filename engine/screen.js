@@ -14,6 +14,8 @@ let teapot;
 let sky = [128, 192, 255];
 let renderdis = 2048;
 let marker = null;
+let deg90 = Math.PI / 2;
+let deg180 = Math.PI;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -74,11 +76,16 @@ function draw() {
 }
 
 function keyPressed() {
-  if (!inmenu && key == '=' || key == '+')
+  if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
+  if (interact && (key == 'e' || key == 'E')) 
+    interact.obj.interact.fn.apply(interact.obj, []);
   keys[key.toLowerCase()] = true;
 }
-function keyReleased() { keys[key.toLowerCase()] = false; }
+
+function keyReleased() { 
+  keys[key.toLowerCase()] = false; 
+}
 
 function mouseMoved(event) {
   if (document.pointerLockElement === canvas) {

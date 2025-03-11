@@ -5,6 +5,7 @@ let buffertime = 200 / buffersendlim; // 200 is also on server side
 let wshasopened = false;
 let wsfail = '';
 let pname = window.localStorage?.name || '';
+let mapUD = [];
 
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
@@ -23,7 +24,9 @@ function createPacket() {
   let packet = {
     buffer: player.buffer,
     t: Date.now(),
+    mapUD
   };
+  mapUD = [];
   wssend({ type: 'packet', packet })
 }
 
@@ -63,7 +66,7 @@ function connect() {
   };
   ws.onmessage = y => {
     let x = JSON.parse(y.data);
-    if (x.type != 'update') console.log('<', x);
+    if (x.type != 'update' && x.type != 'connected') console.log('<', x);
     switch (x.type) {
       case 'update':
         wsupdate(x);
@@ -96,10 +99,15 @@ function connect() {
 function wssend(data) {
   if (ws.readyState == WebSocket.OPEN) {
     ws.send(JSON.stringify(data));
+    // if (data.type == 'packet' && data.packet.mapUD.length > 0) console.log(data);
     if (data.type != 'packet') console.log('<', data);
   }
 }
 
 function wsupdate(data) {
+  if (data.map) {
+    eval(data.map);
+    createWorld();
+  }
   recvPackets(data.packets);
 }

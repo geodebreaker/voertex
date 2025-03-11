@@ -55,18 +55,11 @@ function draw3D() {
 function drawObjs() {
 	let afterdraw = [];
 
-	map.objs.forEach(x => {
-		let mdl = mdlRef[x.name] || { obj: [] };
-		let pos = createVector(...(x.pos || [0]));
-		let rot = x.rot || [0, 0, 0];
-		if (x.rh) rot[1] = x.rh;
-		if (pos.copy().sub(player.pos).magSq() > renderdis * renderdis) return;
+	Object.values(world.objs).forEach(x => {
+		if (x.pos.copy().sub(player.pos).magSq() > renderdis * renderdis) return;
 		push();
-		translate(pos);
-		rotateY(rot[1]);
-		rotateX(rot[0]);
-		rotateZ(rot[2]);
-		mdl.obj.forEach(x => drawObj(x, afterdraw));
+		x.translate();
+		x.obj.forEach(x => drawObj(x, afterdraw));
 		pop();
 	});
 
@@ -153,7 +146,7 @@ function drawFloatingText(txt, t, m) {
 	rect(0, 3, twidth + 10, theight + 3);
 
 	fill(t ? 0 : 255);
-	text(txt, 1, 0);
+	text(txt, 2, 0);
 	if (!t) drawingContext.enable(drawingContext.DEPTH_TEST);
 	pop();
 }

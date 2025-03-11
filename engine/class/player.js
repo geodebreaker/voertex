@@ -75,12 +75,19 @@ class lPlayer extends Player {
     if (!inmenu && (keys['a'] || keys['arrowleft'])) moveDir.x -= keys['shift'] ? sprint : speed;
     if (!inmenu && (keys['d'] || keys['arrowright'])) moveDir.x += keys['shift'] ? sprint : speed;
 
-    let rotatedDir = createVector(
-      moveDir.x * cos(camYaw) - moveDir.y * sin(camYaw),
-      moveDir.x * sin(camYaw) + moveDir.y * cos(camYaw)
-    ).mult(dt * 0.06);
+    let rotatedDir = mdir(camYaw, moveDir).mult(dt * 0.06);
 
     tryMove(rotatedDir);
+
+    interact = null;
+    let front = testCollideAll(this.pos.copy().add(mdir(camYaw, 70)), 60, true);
+    if (front) {
+      front.map(x => world.objs[x[0]].obj[x[1]]).forEach(x => {
+        if (x.interact) {
+          interact = {text: x.interact.text, obj: x};
+        }
+      });
+    }
 
     this.bt += dt || 0;
     if (this.bt > buffertime) {
@@ -130,6 +137,7 @@ class mPlayer extends Player {
     }
     this.ubuffer();
     if (this.name != pname) this.enabled = true;
+    if (this.enabled) packet.mapUD.map(x => domapUD(x));
     if (this.pingl.length > 5) this.pingl = [];
     this.pingl.push(Date.now() - packet.t);
     if (this.pingl.length == 5) {

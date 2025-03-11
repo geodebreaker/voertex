@@ -2,6 +2,7 @@ let titlescreen;
 let tsin = {};
 let talert = '';
 let chatdiv;
+let interact = null;
 
 function drawHUD() {
   let txt;
@@ -51,6 +52,20 @@ function drawHUD() {
   fill(255);
   text(txt, 0, 0);
   pop();
+
+  push();
+  translate(width / 2, height / 2);
+  fill(255);
+  stroke(0);
+  strokeWeight(3);
+  circle(0, 0, 10);
+  if (interact) {
+    translate(0, 15);
+    textAlign(CENTER, TOP);
+    textSize(18);
+    text(interact.text, 0, 0);
+  }
+  pop();
 }
 
 function drawTitleScreen() {
@@ -67,7 +82,7 @@ function drawTitleScreen() {
   pop();
   push();
   translate(width / 2, height * .25);
-  textAlign(CENTER,  CENTER);
+  textAlign(CENTER, CENTER);
   textSize(70);
   text('VOERTEX', 0, 0)
   pop();

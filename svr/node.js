@@ -1,6 +1,7 @@
 const http = require("http");
 const static = require("node-static");
 const WebSocket = require("ws");
+const fs = require("fs");
 
 const fileServer = new static.Server("");
 
@@ -33,7 +34,8 @@ wss.on("connection", ws => {
         ws.name = msg.name;
         send(ws, {
           type: 'connected',
-          packets
+          packets,
+          map: getMap()
         });
         wss.clients.forEach(x => {
           if (x.name && x != ws)
@@ -56,13 +58,14 @@ wss.on("connection", ws => {
   });
 
   ws.on("close", () => {
-    wss.clients.forEach(x => {
-      if (x.name)
-        send(x, {
-          type: 'pleave',
-          name: ws.name
-        })
-    });
+    if (ws.name)
+      wss.clients.forEach(x => {
+        if (x.name)
+          send(x, {
+            type: 'pleave',
+            name: ws.name
+          })
+      });
     if (ws.name)
       delete packets[ws.name];
     console.log(ws.name, "disconnected");
@@ -94,6 +97,10 @@ const PORT = 8080;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+function getMap() {
+  return fs.readFileSync('./game/map.js').toString();
+}
 
 process.on('uncaughtException', x => console.error(x));
 process.on('unhandledRejection', x => console.error(x));
