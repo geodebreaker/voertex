@@ -1,13 +1,3 @@
-let deg90 = Math.PI / 2;
-let deg180 = Math.PI;
-
-let world = {
-  obj: {
-
-  }
-};
-
-
 mdlRef.house = {
   obj: [
     // gobber
@@ -50,15 +40,23 @@ mdlRef.house = {
     {
       pos: [0, 1, 150, 82, 152, 8],
       col: [120, 70, 20],
-      interact(x) { // allow open and close
-        x.this.data.open = !x.this.data.open;
-        x.this.hide = x.this.data.open;
-        x.this.collide = !x.this.data.open;
+      interact: {
+        text: '[E] To Open / Close',
+        fn() { // allow open and close
+          this.data.open = !this.data.open;
+          if (!this.data.open)
+            tryMove(mdir(camYaw, createVector(0, 20)));
+          this.calc();
+        },
       },
       collide: true,
       hide: false,
       data: {
         open: false
+      },
+      calc() {
+        this.hide = this.data.open;
+        this.collide = !this.data.open;
       }
     },
 
@@ -133,7 +131,7 @@ mdlRef.goober = {
   ]
 }
 
-let map = {
+map = {
   objs: [
     {
       name: 'goober'
