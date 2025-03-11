@@ -84,7 +84,7 @@ class lPlayer extends Player {
     if (front) {
       front.map(x => world.objs[x[0]].obj[x[1]]).forEach(x => {
         if (x.interact) {
-          interact = {text: x.interact.text, obj: x};
+          interact = {text: x.interact.text, obj: x, keys: x.interact.keys};
         }
       });
     }
@@ -137,7 +137,6 @@ class mPlayer extends Player {
     }
     this.ubuffer();
     if (this.name != pname) this.enabled = true;
-    if (this.enabled) packet.mapUD.map(x => domapUD(x));
     if (this.pingl.length > 5) this.pingl = [];
     this.pingl.push(Date.now() - packet.t);
     if (this.pingl.length == 5) {

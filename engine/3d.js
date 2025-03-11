@@ -39,13 +39,18 @@ function draw3D() {
 
 	if (marker) {
 		push();
-		translate(marker.x, 0, marker.y);
-		texture(textures.goober);
-		fill(255);
-		noStroke();
-		rect(-25, 0, 50, 50);
+		translate(marker.x - 25, -50, marker.y);
+		rotateY(-camYaw);
+		rotateZ(-deg90 / 2);
+		texture(textures.marker);
+		plane(50, 50);
+		rotateZ(deg90 / 2);
+		translate(0, -550, 0);
+		texture(textures.beacon);
+		tint(255, 255, 255, 128); 
+		plane(50, 1000);
 		pop();
-		// run marker = player.pos.copy();
+		// run marker = players.googer.pos.copy();
 	}
 
 	floatingTextArr.forEach(x => drawFloatingText(...x));
@@ -56,9 +61,11 @@ function drawObjs() {
 	let afterdraw = [];
 
 	Object.values(world.objs).forEach(x => {
-		if (x.pos.copy().sub(player.pos).magSq() > renderdis * renderdis) return;
 		push();
 		x.translate();
+		let p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
+		p = createVector(p[0], p[2]).sub(player.pos);
+		if (p.magSq() > renderdis * renderdis) return pop();
 		x.obj.forEach(x => drawObj(x, afterdraw));
 		pop();
 	});
@@ -152,4 +159,3 @@ function drawFloatingText(txt, t, m) {
 }
 
 let floatingTextArr;
-let mdlRef = {};
