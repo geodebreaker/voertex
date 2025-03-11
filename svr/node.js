@@ -30,7 +30,7 @@ wss.on("connection", ws => {
           if (p.mapUD) {
             mapUD.push(...p.mapUD);
             wss.clients.forEach(x => {
-              if (x.name)
+              if (x.name && x != ws)
                 x.mapUD.push(...p.mapUD);
             });
             delete p.mapUD;
@@ -98,12 +98,14 @@ setInterval(() => {
       packets[packet[0]].to = true;
   });
   wss.clients.forEach(x => {
-    if (x.name)
+    if (x.name) {
       send(x, {
         type: 'update',
         packets,
         mapUD: x.mapUD
-      })
+      });
+      x.mapUD = [];
+    }
   });
 }, 200);
 
