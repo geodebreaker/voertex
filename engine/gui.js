@@ -54,6 +54,19 @@ function drawHUD() {
   pop();
 
   push();
+  translate(width - 15, height - 15);
+  textAlign(RIGHT, BOTTOM);
+  textSize(12);
+  txt = '$' + money;
+  twidth = textWidth(txt);
+  theight = textLeading() * (txt.split('\n').length);
+  fill(0, 0, 0, 128);
+  rect(-twidth - 5, -theight -5, twidth + 10, theight + 10);
+  fill(255);
+  text(txt, 0, 0);
+  pop();
+
+  push();
   translate(width / 2, height / 2);
   fill(255);
   stroke(0);
@@ -63,6 +76,12 @@ function drawHUD() {
     translate(0, 15);
     textAlign(CENTER, TOP);
     textSize(18);
+    twidth = textWidth(interact.text);
+    theight = textLeading() * interact.text.split('\n').length;
+    fill(0, 0, 0, 128);
+    noStroke();
+    rect(-twidth / 2 - 5, -5, twidth + 10, theight + 10);
+    fill(255);
     text(interact.text, 0, 0);
   }
   pop();

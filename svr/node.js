@@ -14,17 +14,29 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocket.Server({ server });
 
 let packets = {};
+let mapUD = [];
 
 wss.on("connection", ws => {
   console.log("connection");
+  ws.mapUD = [];
 
   ws.on("message", x => {
     let msg = JSON.parse(x.toString());
     if (msg.type != 'packet') console.log(ws.name, '<', msg);
     switch (msg.type) {
       case 'packet':
-        if (ws.name)
+        if (ws.name) {
+          let p = msg.packet;
+          if (p.mapUD) {
+            mapUD.push(...p.mapUD);
+            wss.clients.forEach(x => {
+              if (x.name)
+                x.mapUD.push(...p.mapUD);
+            });
+            delete p.mapUD;
+          }
           packets[ws.name] = msg.packet;
+        }
         break;
       case 'join':
         if (packets[msg.name] && !packets[msg.name].to) {
@@ -35,7 +47,8 @@ wss.on("connection", ws => {
         send(ws, {
           type: 'connected',
           packets,
-          map: getMap()
+          map: getMap(),
+          mapUD
         });
         wss.clients.forEach(x => {
           if (x.name && x != ws)
@@ -88,7 +101,8 @@ setInterval(() => {
     if (x.name)
       send(x, {
         type: 'update',
-        packets
+        packets,
+        mapUD: x.mapUD
       })
   });
 }, 200);

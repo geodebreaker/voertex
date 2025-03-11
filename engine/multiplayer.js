@@ -109,5 +109,6 @@ function wsupdate(data) {
     eval(data.map);
     createWorld();
   }
+  data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);
 }

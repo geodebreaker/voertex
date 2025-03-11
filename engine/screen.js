@@ -8,7 +8,7 @@ let font;
 let inmenu;
 let inputbox;
 let firstperson = 1;
-let texturesSrc = ["goober.jpg", "grass.jpg"];
+let texturesSrc = ["goober.jpg", "grass.jpg", "beacon.png", "marker.png"];
 let textures = {};
 let teapot;
 let sky = [128, 192, 255];
@@ -16,6 +16,7 @@ let renderdis = 2048;
 let marker = null;
 let deg90 = Math.PI / 2;
 let deg180 = Math.PI;
+let money = 200;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -78,8 +79,8 @@ function draw() {
 function keyPressed() {
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
-  if (interact && (key == 'e' || key == 'E')) 
-    interact.obj.interact.fn.apply(interact.obj, []);
+  if (!inmenu && interact && interact.keys.includes(key.toLowerCase()))
+    interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
   keys[key.toLowerCase()] = true;
 }
 
