@@ -4,7 +4,13 @@ mdlRef.door = {
       pos: [0, 0, 0, 82, 152, 8],
       col: [120, 70, 20],
       interact: {
-        text: '[E] To buy house',
+        text() {
+          return this.data.owner ?
+            (this.data.owner == pname ?
+              (this.data.open ? '[E] To close' : '[E] To open') + '\n[P] To sell' :
+              'Owned by ' + this.data.owner) :
+            (money >= this.cost ? '[E] To buy house' : 'You cannot afford this house')
+        },
         e() {
           if (this.data.owner) {
             if (this.data.owner != pname) return;
@@ -12,12 +18,20 @@ mdlRef.door = {
             if (!this.data.open)
               tryMove(mdir(camYaw, createVector(0, 20)));
             this.calc();
-          } else {
+          } else if (money >= this.cost) {
+            money -= this.cost;
             this.data.owner = pname;
             this.calc();
           }
         },
-        keys: ['e']
+        p() {
+          if (this.data.owner == pname) {
+            money += this.cost;
+            this.data.owner = null;
+            this.calc();
+          }
+        },
+        keys: ['e', 'p']
       },
       collide: true,
       hide: false,
@@ -28,11 +42,6 @@ mdlRef.door = {
       calc() {
         this.hide = this.data.open;
         this.collide = !this.data.open;
-        this.interact.text = this.data.owner ?
-          (this.data.owner == pname ?
-            (this.data.open ? '[E] To close' : '[E] To open') :
-            'Owned by ' + this.data.owner) :
-          '[E] To buy house'
       },
       on: {
         leave(u) {
@@ -41,7 +50,8 @@ mdlRef.door = {
             this.calc(true);
           }
         }
-      }
+      },
+      cost: 100
     },
   ]
 }
