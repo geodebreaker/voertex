@@ -45,12 +45,12 @@ function draw3D() {
 		texture(textures.marker);
 		plane(50, 50);
 		rotateZ(deg90 / 2);
-		translate(0, -550, 0);
+		let dis = Math.max(0, marker.copy().sub(player.pos).mag() / 3 - 500);
+		translate(0, -5050 - dis / 2, 0);
 		texture(textures.beacon);
 		tint(255, 255, 255, 128); 
-		plane(50, 1000);
-		pop();
-		// run marker = players.googer.pos.copy();
+		plane(50 + dis / 2, 10000 + dis);
+		pop();``
 	}
 
 	floatingTextArr.forEach(x => drawFloatingText(...x));
