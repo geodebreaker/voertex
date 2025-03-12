@@ -1,6 +1,6 @@
 function tryMove(d) {
-  let x = testCollideAll(player.pos.copy().add(d.x, 0), 25);
-  let y = testCollideAll(player.pos.copy().add(0, d.y), 25);
+  let x = noclip ? false : testCollideAll(player.pos.copy().add(d.x, 0), 25);
+  let y = noclip ? false : testCollideAll(player.pos.copy().add(0, d.y), 25);
   if (!x) player.pos.add(d.x, 0);
   if (!y) player.pos.add(0, d.y);
 }

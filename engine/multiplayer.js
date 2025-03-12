@@ -112,6 +112,9 @@ function wsupdate(data) {
     eval(data.map);
     createWorld();
   }
+  if (data.persist) {
+    money = /*Skey +*/ data.persist.money;
+  }
   data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);
 }

@@ -5,28 +5,28 @@ mdlRef.door = {
       col: [120, 70, 20],
       interact: {
         text() {
-          return this.data.owner ?
-            (this.data.owner == pname ?
-              (this.data.open ? '[E] To close' : '[E] To open') + '\n[P] To sell' :
+          return this.data.owner || !this.buyable ?
+            (this.data.owner == pname || !this.buyable  ?
+              (this.data.open ? '[E] To close' : '[E] To open') + (this.buyable ? '\n[P] To sell' : '') :
               'Owned by ' + this.data.owner) :
             (money >= this.cost ? '[E] To buy house' : 'You cannot afford this house')
         },
         e() {
-          if (this.data.owner) {
-            if (this.data.owner != pname) return;
+          if (this.data.owner || !this.buyable ) {
+            if (this.data.owner != pname && this.buyable) return;
             this.data.open = !this.data.open;
             if (!this.data.open)
               tryMove(mdir(camYaw, createVector(0, 20)));
             this.calc();
-          } else if (money >= this.cost) {
-            money -= this.cost;
+          } else if (money >= this.cost && this.buyable) {
+            money = /*Skey +*/ (money - this.cost);
             this.data.owner = pname;
             this.calc();
           }
         },
         p() {
-          if (this.data.owner == pname) {
-            money += this.cost;
+          if (this.data.owner == pname && this.buyable) {
+            money = /*Skey +*/ (money + this.cost);
             this.data.owner = null;
             this.calc();
           }
@@ -51,7 +51,8 @@ mdlRef.door = {
           }
         }
       },
-      cost: 100
+      cost: 100,
+      buyable: false,
     },
   ]
 }
@@ -68,7 +69,7 @@ mdlRef.house = {
     // floor
     {
       pos: [0, 0, 0, 300, 10, 300],
-      col: [120, 70, 20]
+      col: [100, 50, 0]
     },
 
     // roof
@@ -98,6 +99,7 @@ mdlRef.house = {
     {
       preset: "door",
       pos: [0, 1, 150, 82, 152, 8],
+      buyable: true,
     },
 
     // windows
@@ -160,6 +162,136 @@ mdlRef.house = {
   ]
 };
 
+mdlRef.building = {
+  obj: [
+    // floor
+    {
+      pos: [0, 0, 0, 300, 10, 300],
+      col: [150, 150, 150]
+    },
+
+    // roof
+    {
+      pos: [0, -200, 0, 300, 20, 300],
+      col: [120, 120, 120]
+    },
+
+    // roof
+    {
+      pos: [0, -500, 0, 320, 20, 320],
+      col: [120, 120, 120]
+    },
+
+    // walls
+    {
+      pos: [0, 0, -150, 300, 500, 10], // back
+      col: [160, 160, 160],
+      collide: true
+    },
+    {
+      pos: [-152.5, 0, 0, 5, 500, 310], // left
+      col: [140, 140, 140],
+      collide: true
+    },
+    {
+      pos: [152.5, 0, 0, 5, 500, 310], // right
+      col: [140, 140, 140],
+      collide: true,
+    },
+    // {
+    //   pos: [0, 0, 150, 300, 500, 10], // front
+    //   col: [160, 160, 160],
+    //   collide: true
+    // },
+
+    // door
+    {
+      preset: "door",
+      pos: [0, 1, 150, 82, 152, 8],
+      buyable: false,
+    },
+
+    // windows
+    {
+      pos: [-80, -99, 150, 52, 52, 8], // left
+      col: [128, 192, 255, 64],
+      dl: true,
+      collide: true
+    },
+    {
+      pos: [80, -99, 150, 52, 52, 8], // right
+      col: [128, 192, 255, 64],
+      dl: true,
+      collide: true
+    },
+    {
+      pos: [-80, -249, 150, 52, 52, 12], // left
+      col: [128, 192, 255, 64],
+      dl: true,
+      collide: true
+    },
+    {
+      pos: [80, -249, 150, 52, 52, 12], // right
+      col: [128, 192, 255, 64],
+      dl: true,
+      collide: true
+    },
+    {
+      pos: [-80, -399, 150, 52, 52, 12], // left
+      col: [128, 192, 255, 64],
+      dl: true,
+      collide: true
+    },
+    {
+      pos: [80, -399, 150, 52, 52, 12], // right
+      col: [128, 192, 255, 64],
+      dl: true,
+      collide: true
+    },
+
+
+    {
+      pos: [0, -150, 150, 300, 350, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+
+    {
+      pos: [127.5, -100, 150, 45, 50, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+    {
+      pos: [-127.5, -100, 150, 45, 50, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+
+    {
+      pos: [47.5, -100, 150, 15, 50, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+    {
+      pos: [-47.5, -100, 150, 15, 50, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+
+    {
+      pos: [95, 0, 150, 110, 100, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+    {
+      pos: [-95, 0, 150, 110, 100, 10],
+      col: [160, 160, 160],
+      collide: true
+    },
+  ]
+};
+
+
 mdlRef.goober = {
   obj: [
     // gobber
@@ -217,5 +349,9 @@ map = {
       pos: [600, 0, 200],
       rh: -deg90
     },
+    {
+      name: 'building',
+      pos: [-1000, 0, 0]
+    }
   ]
 };

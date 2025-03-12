@@ -68,7 +68,8 @@ wss.on("connection", ws => {
           type: 'connected',
           packets,
           map: getMap(),
-          mapUD
+          mapUD,
+          persist: persist[ws.name]
         });
         wss.clients.forEach(x => {
           if (x.name && x != ws)
@@ -137,7 +138,13 @@ server.listen(PORT, () => {
 });
 
 function getMap() {
-  return fs.readFileSync('./game/map.js').toString();
+  return (//fs.readFileSync('./svr/lock.js').toString()
+    //.replaceAll("***", Math.floor(Math.random() * (36 ** 8 - 1)).toString(36)) +
+    fs.readdirSync('./game/').map(x => {
+      // if (fs.fstatSync(2, './game/' + x).isFile())
+        try { return fs.readFileSync('./game/' + x).toString(); } catch(e) { return '' }
+      // else return 'console.log("error")';
+    }).join('\r\n\r\n'));
 }
 
 process.on('uncaughtException', x => console.error(x));
