@@ -52,9 +52,11 @@ class lPlayer extends Player {
         if (e.key == "Enter") {
           inmenu = false;
           let msg = inputbox.value();
+          this.say = null;
           if (msg.startsWith('run ')) {
             wssend({ type: 'run', code: msg.replace('run ', '') });
-            this.say = null;
+          } else if (msg == 'marker') {
+            nmarker = player.pos.copy();
           } else {
             this.say = msg;
             if (this.say) {

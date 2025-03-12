@@ -27,8 +27,11 @@ function createPacket() {
     mapUD,
     persist: {
       money
-    }
+    },
+    marker: nmarker ? [nmarker.x, nmarker.y] : undefined
   };
+  if (nmarker) marker = nmarker;
+  nmarker = null;
   mapUD = [];
   wssend({ type: 'packet', packet })
 }
@@ -114,6 +117,9 @@ function wsupdate(data) {
   }
   if (data.persist) {
     money = /*Skey +*/ data.persist.money;
+  }
+  if (data.marker) {
+    marker = createVector(...data.marker);
   }
   data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);

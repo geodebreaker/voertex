@@ -12,10 +12,14 @@ const server = http.createServer((req, res) => {
 });
 
 const wss = new WebSocket.Server({ server });
+let newPersist = {
+  money: 200
+};
 
 let packets = {};
 let mapUD = [];
 let persist = {};
+let marker = null;
 
 wss.on("connection", ws => {
   console.log("connection");
@@ -29,6 +33,9 @@ wss.on("connection", ws => {
       case 'packet':
         if (ws.name) {
           let p = msg.packet;
+          if (p.marker) {
+            marker = p.marker;
+          }
           if (p.chat) {
             wss.clients.forEach(x => {
               if (x.name && x != ws)
@@ -69,7 +76,7 @@ wss.on("connection", ws => {
           packets,
           map: getMap(),
           mapUD,
-          persist: persist[ws.name]
+          persist: persist[ws.name] || newPersist
         });
         wss.clients.forEach(x => {
           if (x.name && x != ws)
@@ -124,7 +131,8 @@ setInterval(() => {
         type: 'update',
         packets,
         chat: x.chat,
-        mapUD: x.mapUD
+        mapUD: x.mapUD,
+        marker
       });
       x.chat = [];
       x.mapUD = [];

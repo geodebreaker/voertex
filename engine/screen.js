@@ -14,6 +14,7 @@ let teapot;
 let sky = [128, 192, 255];
 let renderdis = 2048;
 let marker = null;
+let nmarker = null;
 let deg90 = Math.PI / 2;
 let deg180 = Math.PI;
 let money = 200;
