@@ -17,6 +17,7 @@ let marker = null;
 let deg90 = Math.PI / 2;
 let deg180 = Math.PI;
 let money = 200;
+let noclip = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -84,8 +85,8 @@ function keyPressed() {
   keys[key.toLowerCase()] = true;
 }
 
-function keyReleased() { 
-  keys[key.toLowerCase()] = false; 
+function keyReleased() {
+  keys[key.toLowerCase()] = false;
 }
 
 function mouseMoved(event) {
