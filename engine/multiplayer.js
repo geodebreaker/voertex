@@ -24,7 +24,10 @@ function createPacket() {
   let packet = {
     buffer: player.buffer,
     t: Date.now(),
-    mapUD
+    mapUD,
+    persist: {
+      money
+    }
   };
   mapUD = [];
   wssend({ type: 'packet', packet })
@@ -60,7 +63,7 @@ function connect() {
       console.log('disconnected');
       setTimeout(connect, 10e3);
     } else {
-      wsfail = 'Could not connect to server';
+      if (!wsfail) wsfail = 'Could not connect to server';
       console.log('failed');
     }
   };

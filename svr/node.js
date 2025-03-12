@@ -15,10 +15,12 @@ const wss = new WebSocket.Server({ server });
 
 let packets = {};
 let mapUD = [];
+let persist = {};
 
 wss.on("connection", ws => {
   console.log("connection");
   ws.mapUD = [];
+  ws.chat = [];
 
   ws.on("message", x => {
     let msg = JSON.parse(x.toString());
@@ -27,13 +29,31 @@ wss.on("connection", ws => {
       case 'packet':
         if (ws.name) {
           let p = msg.packet;
+          if (p.chat) {
+            wss.clients.forEach(x => {
+              if (x.name && x != ws)
+                x.chat.push(...p.chat);
+            });
+          }
           if (p.mapUD) {
-            mapUD.push(...p.mapUD);
+            p.mapUD.forEach(x => {
+              if (x[0] == 'calc') {
+                let y = mapUD.find(y => y[1] == x[1] && y[2] == y[2]);
+                if (y) y[3] = x[3];
+                else mapUD.push(x);
+              } else {
+                mapUD.push(x);
+              }
+            });
             wss.clients.forEach(x => {
               if (x.name && x != ws)
                 x.mapUD.push(...p.mapUD);
             });
             delete p.mapUD;
+          }
+          if (p.persist) {
+            persist[ws.name] = p.persist;
+            delete p.persist;
           }
           packets[ws.name] = msg.packet;
         }
@@ -102,8 +122,10 @@ setInterval(() => {
       send(x, {
         type: 'update',
         packets,
+        chat: x.chat,
         mapUD: x.mapUD
       });
+      x.chat = [];
       x.mapUD = [];
     }
   });

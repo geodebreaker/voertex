@@ -84,7 +84,11 @@ class lPlayer extends Player {
     if (front) {
       front.map(x => world.objs[x[0]].obj[x[1]]).forEach(x => {
         if (x.interact) {
-          interact = {text: x.interact.text, obj: x, keys: x.interact.keys};
+          interact = {
+            text: x.interact.text.constructor.name == 'Function' ? x.interact.text.apply(x) : x.interact.text,
+            obj: x,
+            keys: x.interact.keys
+          };
         }
       });
     }

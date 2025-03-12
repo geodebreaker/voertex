@@ -43,7 +43,7 @@ function drawHUD() {
   translate(width - 15, 15);
   textAlign(RIGHT, TOP);
   textSize(12);
-  txt = Math.floor(1000 / deltaTime) + ' FPS\n' + Object.entries(players).map(plr =>
+  txt = Math.floor(frameRate()) + ' FPS\n' + Object.entries(players).map(plr =>
     (plr[1].ping) + ' - ' + plr[0]).join('\n');
   let twidth = textWidth(txt);
   let theight = textLeading() * (Object.keys(players).length + 1);
