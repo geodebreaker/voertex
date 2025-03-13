@@ -63,7 +63,8 @@ mdlRef.house = {
     {
       pos: [0, -100, -80, 50],
       tex: "goober",
-      stk: [3, 255, 255, 0]
+      stk: [3, 255, 255, 0],
+      collide: true,
     },
 
     // floor
@@ -173,13 +174,15 @@ mdlRef.building = {
     // roof
     {
       pos: [0, -200, 0, 300, 20, 300],
-      col: [120, 120, 120]
+      col: [120, 120, 120],
+      collide: true,
     },
 
     // roof
     {
       pos: [0, -500, 0, 320, 20, 320],
-      col: [120, 120, 120]
+      col: [120, 120, 120],
+      collide: true,
     },
 
     // walls
