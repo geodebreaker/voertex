@@ -6,6 +6,7 @@ function tryMove(d, j) {
   if (!z) player.pos.add(0, 0, d.z);
   if (y) {
     player.yv = 0;
+    console.log(player.yv)
   } else {
     player.pos.y += j;
   }
