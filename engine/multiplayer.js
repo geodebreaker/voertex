@@ -6,6 +6,7 @@ let wshasopened = false;
 let wsfail = '';
 let pname = window.localStorage?.name || '';
 let mapUD = [];
+let chatToSend = [];
 
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
@@ -28,8 +29,10 @@ function createPacket() {
     persist: {
       money
     },
-    marker: nmarker ? [nmarker.x, nmarker.y] : undefined
+    marker: nmarker ? [nmarker.x, nmarker.y] : undefined,
+    chat: chatToSend
   };
+  chatToSend = [];
   if (nmarker) marker = nmarker;
   nmarker = null;
   mapUD = [];
@@ -120,6 +123,11 @@ function wsupdate(data) {
   }
   if (data.marker) {
     marker = createVector(...data.marker);
+  }
+  if (data.chat) {
+    data.chat.forEach(x => {
+      chatMsg(x[0], x[1])
+    });
   }
   data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);

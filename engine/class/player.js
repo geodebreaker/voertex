@@ -1,6 +1,6 @@
 class Player {
-  constructor(x, y, name, col) {
-    this.pos = createVector(x, y);
+  constructor(x, y, z, name, col) {
+    this.pos = createVector(x, y, z);
     this.name = name;
     this.enabled = true;
     this.col = name == 'googer' ? 'goober' : col;
@@ -15,7 +15,7 @@ class Player {
       fill(this.col);
     else
       texture(textures[this.col]);
-    translate(this.pos.x, -25, this.pos.y);
+    translate(this.pos.x, this.pos.y - 25, this.pos.z);
     box(50);
     floatingText(this.name, false);
     if (this.say) {
@@ -27,13 +27,13 @@ class Player {
 }
 
 class lPlayer extends Player {
-  constructor(x, y) {
-    super(x, y, pname, color(255, 0, 0));
+  constructor(x, y, z) {
+    super(x, y, z, pname, color(255, 0, 0));
     this.buffer = [];
-    this.sayi = 0;
     this.saytime = 0;
     this.bt = 0;
     this.bst = 0;
+    this.yv = 0;
   }
 
   tick(dt) {
@@ -55,13 +55,11 @@ class lPlayer extends Player {
           this.say = null;
           if (msg.startsWith('run ')) {
             wssend({ type: 'run', code: msg.replace('run ', '') });
-          } else if (msg == 'marker') {
-            nmarker = player.pos.copy();
           } else {
             this.say = msg;
             if (this.say) {
-              this.sayi++;
               this.saytime = Date.now() + 60e3;
+              chatToSend.push(this.say);
               chatMsg(this.name, this.say);
             }
           }
@@ -77,12 +75,22 @@ class lPlayer extends Player {
     if (!inmenu && (keys['a'] || keys['arrowleft'])) moveDir.x -= keys['shift'] ? sprint : speed;
     if (!inmenu && (keys['d'] || keys['arrowright'])) moveDir.x += keys['shift'] ? sprint : speed;
 
+    this.yv -= grav;
+    if (onGround()) {
+      this.yv = 0;
+      if (!inmenu && keys[' ']) {
+        this.yv += jumpSpeed;
+      }
+    }
+    this.yv *= 0.99;
+
     let rotatedDir = mdir(camYaw, moveDir).mult(dt * 0.06);
 
-    tryMove(rotatedDir);
+    tryMove(rotatedDir, this.yv);
 
     interact = null;
-    let front = testCollideAll(this.pos.copy().add(mdir(camYaw, 70)), 60, true);
+    let front = this.pos.copy().add(mdir(camYaw, 70));
+    front = testCollideAll(createVector(front.x, front.z), 60, true);
     if (front) {
       front.map(x => world.objs[x[0]].obj[x[1]]).forEach(x => {
         if (x.interact) {
@@ -101,8 +109,8 @@ class lPlayer extends Player {
       this.buffer.push({
         x: this.pos.x,
         y: this.pos.y,
+        z: this.pos.z,
         s: this.say,
-        si: this.sayi,
       });
       if (this.buffer.length > bufferlim)
         this.buffer.shift();
@@ -118,16 +126,15 @@ class lPlayer extends Player {
 class mPlayer extends Player {
   constructor(packet, name) {
     let mp = {
-      buffer: packet.buffer || [{ x: 0, y: 0, s: null }],
+      buffer: packet.buffer || [{ x: 0, y: 0, z: 0, s: null }],
       bi: 0,
       time: packet.t,
     }
     let say = mp.buffer[0]?.s;
-    super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, name, color(0, 255, 0));
+    super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, mp.buffer[0].z, name, color(0, 255, 0));
     if (name == pname) this.enabled = false;
     this.mp = mp;
     this.say = say;
-    this.sayi = mp.buffer[0]?.si;
     this.npos = createVector();
     this.opos = createVector();
     this.ping = Date.now() - packet.t;
@@ -170,15 +177,12 @@ class mPlayer extends Player {
       let buf = this.mp.buffer[this.mp.bi];
       let nbuf = this.mp.buffer[this.mp.bi + 1];
       this.say = buf?.s;
-      this.pos = this.pos.set(buf?.x || 0, buf?.y || 0);
+      this.pos = this.pos.set(buf?.x || 0, buf?.y || 0, buf?.z || 0);
       if (this.mp.bi > 1)
         this.opos.set(this.pos);
       else this.opos.set(this.npos);
-      if (this.sayi < buf?.si && this.say && this.enabled)
-        chatMsg(this.name, this.say);
-      this.sayi = buf.si;
       if (nbuf) {
-        this.npos.set(nbuf?.x || 0, nbuf?.y || 0);
+        this.npos.set(nbuf?.x || 0, nbuf?.y || 0, nbuf?.z || 0);
       } else {
         this.npos.set(this.pos);
       }

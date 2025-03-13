@@ -39,7 +39,7 @@ wss.on("connection", ws => {
           if (p.chat) {
             wss.clients.forEach(x => {
               if (x.name && x != ws)
-                x.chat.push(...p.chat);
+                x.chat.push(...p.chat.map(x => [ws.name, x]));
             });
           }
           if (p.mapUD) {

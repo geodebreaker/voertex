@@ -5,10 +5,10 @@ function draw3D() {
 	if (firstperson) {
 		perspective(PI / 2.8, width / height, 0.1, 5000);
 		camera(
-			player.pos.x, /*pos.y*/-100, player.pos.y,
+			player.pos.x, player.pos.y - 100, player.pos.z,
 			player.pos.x + cos(camYaw - PI / 2),
-			-100 + tan(-camPitch),
-			player.pos.y + sin(camYaw - PI / 2),
+			player.pos.y - 100 + tan(-camPitch),
+			player.pos.z + sin(camYaw - PI / 2),
 			0, 1, 0
 		);
 	} else {
@@ -17,7 +17,7 @@ function draw3D() {
 		rotateX(camPitch);
 		rotateY(camYaw);
 
-		translate(-player.pos.x, 0, -player.pos.y);
+		translate(-player.pos.x, -player.pos.y, -player.pos.z);
 	}
 
 	if (!firstperson)
@@ -45,12 +45,12 @@ function draw3D() {
 		texture(textures.marker);
 		plane(50, 50);
 		rotateZ(deg90 / 2);
-		let dis = Math.max(0, marker.copy().sub(player.pos).mag() / 3 - 500);
+		let dis = Math.max(0, marker.copy().sub(player.pos.x, player.pos.z).mag() / 3 - 500);
 		translate(0, -5050 - dis / 2, 0);
 		texture(textures.beacon);
 		tint(255, 255, 255, 128); 
 		plane(50 + dis / 2, 10000 + dis);
-		pop();``
+		pop();
 	}
 
 	floatingTextArr.forEach(x => drawFloatingText(...x));
@@ -64,7 +64,7 @@ function drawObjs() {
 		push();
 		x.translate();
 		let p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
-		p = createVector(p[0], p[2]).sub(player.pos);
+		p = createVector(...p).sub(player.pos);
 		if (p.magSq() > renderdis * renderdis) return pop();
 		x.obj.forEach(x => drawObj(x, afterdraw));
 		pop();
@@ -107,7 +107,7 @@ function drawGrid(size, step) {
 	rotateX(HALF_PI);
 	translate(
 		player.pos.x - player.pos.x % (tex.width * 2),
-		player.pos.y - player.pos.y % (tex.height * 2), -1);
+		player.pos.z - player.pos.z % (tex.height * 2), -1);
 	texture(tex);
 	beginShape();
 	vertex(-floorSize / 2, -floorSize / 2, 0, 0);
