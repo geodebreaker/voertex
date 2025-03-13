@@ -19,6 +19,8 @@ let deg90 = Math.PI / 2;
 let deg180 = Math.PI;
 let money = 200;
 let noclip = false;
+let jumpSpeed = -12;
+let grav = -1;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -35,7 +37,7 @@ function setup() {
 }
 
 function closeTitleScreen() {
-  player = new lPlayer(0, 0);
+  player = new lPlayer(0, 0, 0);
   titlescreen = false;
   inmenu = false;
   wsfail = '';
@@ -79,11 +81,13 @@ function draw() {
 }
 
 function keyPressed() {
+  keys[key.toLowerCase()] = true;
+  if (!inmenu && interact && interact.keys.includes(key.toLowerCase()))
+    return interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
+  if (!inmenu && (key == 'm' || key == 'M'))
+    nmarker = createVector(player.pos.x, player.pos.z);
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
-  if (!inmenu && interact && interact.keys.includes(key.toLowerCase()))
-    interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
-  keys[key.toLowerCase()] = true;
 }
 
 function keyReleased() {

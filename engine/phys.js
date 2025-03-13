@@ -1,18 +1,29 @@
-function tryMove(d) {
-  let x = noclip ? false : testCollideAll(player.pos.copy().add(d.x, 0), 25);
-  let y = noclip ? false : testCollideAll(player.pos.copy().add(0, d.y), 25);
-  if (!x) player.pos.add(d.x, 0);
-  if (!y) player.pos.add(0, d.y);
+function tryMove(d, j) {
+  let y = player.pos.y + j > 0 || testCollideAll(createVector(player.x, player.z), 25, false, player.pos.y + j);
+  let x = noclip ? false : testCollideAll(createVector(d.x, 0).add(player.pos.x, player.pos.z), 25, false, player.pos.y);
+  let z = noclip ? false : testCollideAll(createVector(0, d.z).add(player.pos.x, player.pos.z), 25, false, player.pos.y);
+  if (!x) player.pos.add(d.x, 0, 0);
+  if (!z) player.pos.add(0, 0, d.z);
+  if (y) {
+    player.yv = 0;
+  } else {
+    player.pos.y += j;
+  }
+}
+
+function onGround() {
+  return player.pos.y + 5 > 0 || testCollideAll(createVector(player.x, player.z), 25, false, player.pos.y + 5);
 }
 
 function mdir(d, p) { 
   return createVector(
     p.x * cos(d) - p.y * sin(d),
+    0,
     p.x * sin(d) + p.y * cos(d)
   )
 }
 
-function testCollideAll(P, S, ca) {
+function testCollideAll(P, S, ca, Py) {
   let res = null;
   push();
   resetMatrix();
@@ -38,7 +49,7 @@ function testCollideAll(P, S, ca) {
       let y2 = p[1];
 
       let cr = testCollide(P, S, a, b);
-      if (Math.min(y1, y2) >= 0 || Math.max(y1, y2) < S * -2) {
+      if (Math.min(y1, y2) >= Py || Math.max(y1, y2) < S * -2 + Py) {
         pop();
         return true;
       }

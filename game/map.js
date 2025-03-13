@@ -16,7 +16,7 @@ mdlRef.door = {
             if (this.data.owner != pname && this.buyable) return;
             this.data.open = !this.data.open;
             if (!this.data.open)
-              tryMove(mdir(camYaw, createVector(0, 20)));
+              tryMove(mdir(camYaw, createVector(0, 20)), 0);
             this.calc();
           } else if (money >= this.cost && this.buyable) {
             money = /*Skey +*/ (money - this.cost);
