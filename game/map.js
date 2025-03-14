@@ -185,10 +185,11 @@ mdlRef.building = {
 
     // ladder
     {
-      pos: [50, -200, -100, 200, 20, 100],
+      pos: [-100, 0, -149, 100, 500, 10],
       tex: "ladder",
-      wrap: true,
-      collide: true,
+      wrap: [1, 5],
+      ladder: true,
+      dl: true,
     },
 
     // roof

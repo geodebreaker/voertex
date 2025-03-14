@@ -112,7 +112,7 @@ function drawTitleScreen() {
 function makeTitleScreen() {
   let conn = e => {
     if (e.key == "Enter") {
-      if (tsin.name.value()) WSURL = tsin.name.value();
+      if (tsin.svr.value()) WSURL = (location.protocol == 'http:' ? 'ws://' : 'wss://') + tsin.svr.value();
       pname = tsin.name.value();
       if (pname.length >= 3 && pname.length <= 12) {
         if (window.localStorage) localStorage.name = pname;

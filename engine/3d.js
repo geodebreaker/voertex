@@ -82,9 +82,15 @@ function drawObj(x, y, m) {
 	if (m) _renderer.uModelMatrix.mat4 = m;
 	translate(...x.pos.slice(0, 3));
 	if (x.tex) {
-		texture(textures[x.tex]);
 		if (x.wrap) {
-			textureWrap(REPEAT);
+			shader(tileShader);
+			tileShader.setUniform('uTexture', textures[x.tex]);
+			tileShader.setUniform('uScale', [
+				x.wrap[0], 
+				x.wrap[1]
+			]);
+		} else {
+			texture(textures[x.tex]);
 		}
 	} else {
 		fill(...x.col.slice(0, 4));
@@ -95,9 +101,8 @@ function drawObj(x, y, m) {
 	} else {
 		noStroke();
 	}
-	if (x.pos[4])
-		translate(0, -x.pos[4] / 2, 0)
-	box(...x.pos.slice(3, 6), ...(x.wrap ? [textures[x.tex].width, textures[x.tex].height] : []));
+	if (x.pos[4]) translate(0, -x.pos[4] / 2, 0);
+	box(...x.pos.slice(3, 6));
 	pop();
 }
 

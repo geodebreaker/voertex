@@ -79,7 +79,7 @@ function connect(ua) {
   ws.onopen = () => {
     talert = 'Joining...';
     console.log('connected');
-    wssend({ type: 'join', name: pname })
+    wssend({ type: 'join', name: pname, svr: 'main' });
   };
   ws.onclose = () => {
     talert = '';
