@@ -30,6 +30,9 @@ wss.on("connection", ws => {
     let msg = JSON.parse(x.toString());
     if (msg.type != 'packet') console.log(ws.name, '<', msg);
     switch (msg.type) {
+      case 'test':
+        send(ws, 'isvtx');
+        break;
       case 'packet':
         if (ws.name) {
           let p = msg.packet;

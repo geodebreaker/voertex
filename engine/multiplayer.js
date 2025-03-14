@@ -48,12 +48,28 @@ function recvPackets(packets) {
   })
 }
 
-let WSURL = new URL(window.location);
-WSURL.protocol = WSURL.protocol == 'http:' ? 'ws' : 'wss';
-WSURL = WSURL.href;
+let WSURL = null;
+(async () => {
+  let url = new URL(window.location);
+  url.protocol = url.protocol == 'http:' ? 'ws' : 'wss';
+  if (await testUrl(url)) return WSURL = url.href;
+  else if (WSURL) return;
+  url.host = 'svr.' + url.host;
+  if (await testUrl(url)) return WSURL = url.href;
+  else if (WSURL) return;
+  else return false;
+})();
+
 let ws = { readyState: WebSocket.CLOSED };
 
-function connect() {
+function connect(ua) {
+  if (ua) wsfail = '';
+  if (!WSURL) {
+    wsfail = WSURL === null ? 
+      'Still searching for servers...' : 
+      'Could not find server. Please provide server.'
+    return;
+  }
   talert = 'Connecting...';
   ws.onclose = null;
   if (ws.close) ws.close();
@@ -131,4 +147,26 @@ function wsupdate(data) {
   }
   data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);
+}
+
+function testUrl(url) {
+  return new Promise(y => {
+    let ws = new WebSocket(url);
+    let hr = false;
+    ws.onopen = () => {
+      ws.send('{"type":"test"}');
+    };
+    ws.onmessage = x => {
+      ws.close();
+      if (x.data == '"isvtx"') {
+        hr = true;
+        y(true);
+      } else y(false);
+    };
+    setTimeout(() => {
+      if (hr) return;
+      ws.close();
+      y(false);
+    }, 3e3);
+  });
 }
