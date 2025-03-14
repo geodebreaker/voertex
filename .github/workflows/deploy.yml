@@ -72,8 +72,8 @@ jobs:
           # git checkout main
           # git pull origin main
           # git add .
-          git commit -m "Deploy to GitHub Pages"
-          git push --force origin gh-pages
+          # git commit -m "Deploy to GitHub Pages"
+          # git push --force origin gh-pages
 
      
   finish:
