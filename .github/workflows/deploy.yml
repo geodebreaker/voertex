@@ -69,7 +69,7 @@ jobs:
         run: |
           git checkout -b pub
           git pull origin main
-          git push --force pub
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git pub
 
   finish:
     needs: [deploy_eb, deploy_github_pages]
