@@ -21,12 +21,14 @@ let money = 200;
 let noclip = false;
 let jumpSpeed = -12;
 let grav = -1;
+let tileShader;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
 
   font = loadFont("./engine/assets/googlesans.ttf");
   teapot = loadModel("./engine/assets/teapot.obj");
+  tileShader = loadShader('./engine/lib/tile.vert', './engine/lib/tile.frag');
 
   texturesSrc.forEach(x => {
     let y = x.replace(/\..{2,5}$/, '');

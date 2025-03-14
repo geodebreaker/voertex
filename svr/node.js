@@ -32,21 +32,21 @@ function createSvr(name) {
   svrs[name] = structuredClone(newSvr);
 }
 
-createSvr('g');
+createSvr('main');
 
 wss.on("connection", ws => {
   console.log("connection");
   ws.mapUD = [];
   ws.chat = [];
-  ws.svr = Object.keys(svrs)[0];
+  ws.svr = null;
+
+  send(ws, {type: "servers", servers: Object.entries(svrs).map(x => 
+    [x[0], Object.values(x[1].packets).filter(x => !x.to).length])})
 
   ws.on("message", x => {
     let msg = JSON.parse(x.toString());
     if (msg.type != 'packet') console.log(ws.name, '<', msg);
     switch (msg.type) {
-      case 'test':
-        send(ws, 'isvtx');
-        break;
       case 'packet':
         if (ws.name) {
           let p = msg.packet;
@@ -87,6 +87,11 @@ wss.on("connection", ws => {
           send(ws, { type: 'fail', error: 'name taken' });
           return ws.close();
         }
+        if (!svrs[msg.svr]) {
+          send(ws, { type: 'fail', error: 'room does not exist' });
+          return ws.close();
+        }
+        ws.svr = msg.svr;
         ws.name = msg.name;
         send(ws, {
           type: 'connected',
