@@ -4,7 +4,7 @@ name: Deploy to Elastic Beanstalk & GitHub Pages
 on:
   push:
     branches:
-      - pub  
+      - main 
 
 jobs:
   start:
