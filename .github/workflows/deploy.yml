@@ -1,0 +1,83 @@
+# .github/workflows/deploy.yml
+name: Deploy to Elastic Beanstalk & GitHub Pages
+
+on:
+  push:
+    branches:
+      - pub  
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{"content":"Starting update..."}' $WEBHOOK_URL
+
+  deploy_eb:
+    needs: start
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Zip application files
+        run: zip -r deploy.zip . -x node_modules -x .github -x engine
+
+      - name: Deploy to Elastic Beanstalk
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          EB_APP_NAME: ${{ secrets.EB_APP_NAME }}
+          EB_ENV_NAME: ${{ secrets.EB_ENV_NAME }}
+        run: |
+          pip install --upgrade pip
+          pip install awsebcli
+          yes no | eb init "$EB_APP_NAME" --region "$AWS_REGION" --platform "node.js" -i
+          yes | eb use "$EB_ENV_NAME"
+          yes | eb deploy --staged
+
+  deploy_github_pages:
+    needs: start
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan gh-pages
+          git reset --hard
+          git add .
+          git commit -m "Deploy to GitHub Pages"
+          git push --force origin gh-pages
+
+  finish:
+    needs: [deploy_eb, deploy_github_pages]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{"content":"Update finished"}' $WEBHOOK_URL

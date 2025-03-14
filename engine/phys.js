@@ -1,19 +1,19 @@
-function tryMove(d, j) {
-  let y = player.pos.y + j > 0 || testCollideAll(createVector(player.x, player.z), 25, false, player.pos.y + j, true);
+function tryMove(d, j) {   
+  let y = onGround(j);
   let x = noclip ? false : testCollideAll(createVector(d.x, 0).add(player.pos.x, player.pos.z), 25, false, player.pos.y);
   let z = noclip ? false : testCollideAll(createVector(0, d.z).add(player.pos.x, player.pos.z), 25, false, player.pos.y);
-  if (!x) player.pos.add(d.x, 0, 0);
-  if (!z) player.pos.add(0, 0, d.z);
+  if (!x) player.pos.x += d.x;
+  if (!z) player.pos.z += d.z;
   if (y) {
     player.yv = 0;
-    console.log(player.yv)
+    // console.log(player.yv)
   } else {
     player.pos.y += j;
   }
 }
 
-function onGround() {
-  return player.pos.y + 5 > 0 || testCollideAll(createVector(player.x, player.z), 25, false, player.pos.y + 5, true);
+function onGround(j=5) {
+  return player.pos.y + j > 0 || (noclip ? false : testCollideAll(createVector(player.pos.x, player.pos.z), 25, false, player.pos.y + j, true));
 }
 
 function mdir(d, p) { 
@@ -52,10 +52,6 @@ function testCollideAll(P, S, ca, Py, test) {
       let cr = testCollide(P, S, a, b);
       if (Math.min(y1, y2) >= Py || Math.max(y1, y2) < S * -2 + Py) {
         pop();
-        if (test && cr) {
-          fill(255, 0, 0)
-          rect(-100, -100, 100, 100)
-        }
         return true;
       }
       if (cr) { if (res) res.push([x.pid, i]); else res = [[x.pid, i]] }
