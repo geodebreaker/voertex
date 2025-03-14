@@ -8,7 +8,7 @@ let font;
 let inmenu;
 let inputbox;
 let firstperson = 1;
-let texturesSrc = ["goober.jpg", "grass.jpg", "beacon.png", "marker.png"];
+let texturesSrc = ["goober.jpg", "grass.jpg", "beacon.png", "marker.png", "ladder.png"];
 let textures = {};
 let teapot;
 let sky = [128, 192, 255];
