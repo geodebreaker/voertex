@@ -67,9 +67,9 @@ jobs:
 
       - name: Deploy to GitHub Pages
         run: |
-          git checkout -b gh-pages
+          git checkout -b pub
           git pull origin main
-          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
+          git push --force pub
 
   finish:
     needs: [deploy_eb, deploy_github_pages]
