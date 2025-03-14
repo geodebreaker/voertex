@@ -5,13 +5,13 @@ const fs = require("fs");
 
 const fileServer = new static.Server("");
 
-const server = http.createServer((req, res) => {
+const server = process.argv[2] == '-d' ? http.createServer((req, res) => {
   req.addListener("end", () => {
     fileServer.serve(req, res);
   }).resume();
-});
+}) : null;
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server(server ? { server } : { port: 80 });
 let newPersist = {
   money: 200
 };
@@ -141,7 +141,7 @@ setInterval(() => {
 }, 200);
 
 const PORT = 8080;
-server.listen(PORT, () => {
+if (server) server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 

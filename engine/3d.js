@@ -3,7 +3,7 @@ function draw3D() {
 	push();
 	floatingTextArr = [];
 	if (firstperson) {
-		perspective(PI / 2.8, width / height, 0.1, 5000);
+		perspective(PI / 2.8, width / height, 0.1, 100000000);
 		camera(
 			player.pos.x, player.pos.y - 100, player.pos.z,
 			player.pos.x + cos(camYaw - PI / 2),
