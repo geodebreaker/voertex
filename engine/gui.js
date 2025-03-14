@@ -89,7 +89,7 @@ function drawHUD() {
 
 function drawTitleScreen() {
   tsin.name.position(width / 2 - 180, height * .75);
-  tsin.name.size(430, 20);
+  tsin.svr.position(width / 2 - 180, height * .75 + 40);
 
   textFont(font);
   fill(255);
@@ -98,6 +98,8 @@ function drawTitleScreen() {
   textAlign(LEFT, CENTER);
   textSize(18);
   text('Name:', 0, 10);
+  translate(0, 40);
+  text('Server:', 0, 10);
   pop();
   push();
   translate(width / 2, height * .25);
@@ -108,6 +110,16 @@ function drawTitleScreen() {
 }
 
 function makeTitleScreen() {
+  let conn = e => {
+    if (e.key == "Enter") {
+      if (tsin.name.value()) WSURL = tsin.name.value();
+      pname = tsin.name.value();
+      if (pname.length >= 3 && pname.length <= 12) {
+        if (window.localStorage) localStorage.name = pname;
+        connect(true);
+      } else wsfail = 'name needs to be between 3 and 12 chars long.';
+    }
+  };
   titlescreen = true;
   inmenu = true;
   tsin = {};
@@ -115,16 +127,12 @@ function makeTitleScreen() {
   tsin.name.position(width / 2 - 180, height * .75);
   tsin.name.size(430, 20);
   tsin.name.elt.focus();
-  tsin.name.elt.onkeydown = e => {
-    if (e.key == "Enter") {
-      pname = tsin.name.value();
-      if (pname.length >= 3 && pname.length <= 12) {
-        if (window.localStorage) localStorage.name = pname;
-        connect();
-      } else
-        wsfail = 'name needs to be between 3 and 12 chars long.';
-    }
-  }
+  tsin.name.elt.onkeydown = conn;
+  tsin.svr = createInput('');
+  tsin.svr.position(width / 2 - 180, height * .75 + 40);
+  tsin.svr.size(430, 20);
+  tsin.svr.elt.placeholder = 'LEAVE BLANK TO AUTOFIND';
+  tsin.svr.elt.onkeydown = conn;
 }
 
 function makeHUD() {
