@@ -64,12 +64,10 @@ jobs:
 
       - name: Deploy to GitHub Pages
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b gh-pages
           git pull origin main
           git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
-          
+
   finish:
     needs: [deploy_eb, deploy_github_pages]
     runs-on: ubuntu-latest
