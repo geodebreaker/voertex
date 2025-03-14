@@ -70,20 +70,20 @@ function testCollide(k, r, a, b) {
   b = b.copy();
   if (a.x > b.x) [a.x, b.x] = [b.x, a.x];
   if (a.y > b.y) [a.y, b.y] = [b.y, a.y];
-  let rs = r * r;
-  // return (
-  //   testCollideSquare(createVector(a.x - r, a.y - r), createVector(b.x + r, b.y + r), k)
-  // )
+  // let rs = r * r;
   return (
-    testCollideSquare(createVector(a.x, a.y - r), b, k) ||
-    testCollideSquare(createVector(a.x - r, a.y), b, k) ||
-    testCollideSquare(a, createVector(b.x, b.y + r), k) ||
-    testCollideSquare(a, createVector(b.x + r, b.y), k) ||
-    testCollideCircle(a.copy(), rs, k) ||
-    testCollideCircle(b.copy(), rs, k) ||
-    testCollideCircle(createVector(a.x, b.y), rs, k) ||
-    testCollideCircle(createVector(b.x, a.y), rs, k)
-  );
+    testCollideSquare(createVector(a.x - r, a.y - r), createVector(b.x + r, b.y + r), k)
+  )
+//   return (
+//     testCollideSquare(createVector(a.x, a.y - r), b, k) ||
+//     testCollideSquare(createVector(a.x - r, a.y), b, k) ||
+//     testCollideSquare(a, createVector(b.x, b.y + r), k) ||
+//     testCollideSquare(a, createVector(b.x + r, b.y), k) ||
+//     testCollideCircle(a.copy(), rs, k) ||
+//     testCollideCircle(b.copy(), rs, k) ||
+//     testCollideCircle(createVector(a.x, b.y), rs, k) ||
+//     testCollideCircle(createVector(b.x, a.y), rs, k)
+//   );
 }
 
 function testCollideSquare(a, b, k) {

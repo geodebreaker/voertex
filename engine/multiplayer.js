@@ -7,6 +7,7 @@ let wsfail = '';
 let pname = window.localStorage?.name || '';
 let mapUD = [];
 let chatToSend = [];
+let serverid = null;
 
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
@@ -27,7 +28,8 @@ function createPacket() {
     t: Date.now(),
     mapUD,
     persist: {
-      money
+      money,
+      pos: [player.pos.x, player.pos.y, player.pos.z]
     },
     marker: nmarker ? [nmarker.x, nmarker.y] : undefined,
     chat: chatToSend
@@ -65,8 +67,8 @@ let ws = { readyState: WebSocket.CLOSED };
 function connect(ua) {
   if (ua) wsfail = '';
   if (!WSURL) {
-    wsfail = WSURL === null ? 
-      'Still searching for servers...' : 
+    wsfail = WSURL === null ?
+      'Still searching for servers...' :
       'Could not find server. Please provide server.'
     return;
   }
@@ -136,6 +138,7 @@ function wsupdate(data) {
   }
   if (data.persist) {
     money = /*Skey +*/ data.persist.money;
+    if (data.persist.pos) player.pos.set(...data.persist.pos);
   }
   if (data.marker) {
     marker = createVector(...data.marker);
@@ -153,15 +156,16 @@ function testUrl(url) {
   return new Promise(y => {
     let ws = new WebSocket(url);
     let hr = false;
-    ws.onopen = () => {
-      ws.send('{"type":"test"}');
-    };
     ws.onmessage = x => {
       ws.close();
-      if (x.data == '"isvtx"') {
-        hr = true;
-        y(true);
-      } else y(false);
+      try {
+        if (JSON.parse(x.data).type == '"servers"') {
+          hr = true;
+          y(true);
+        } else y(false);
+      } catch (e) {
+        y(false);
+      }
     };
     setTimeout(() => {
       if (hr) return;

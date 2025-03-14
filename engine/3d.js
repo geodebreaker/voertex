@@ -64,7 +64,7 @@ function drawObjs() {
 		push();
 		x.translate();
 		let p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
-		p = createVector(...p).sub(player.pos);
+		p = createVector(p[0], p[2]).sub(player.pos.x, player.pos.z);
 		if (p.magSq() > renderdis * renderdis) return pop();
 		x.obj.forEach(x => drawObj(x, afterdraw));
 		pop();

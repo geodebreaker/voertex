@@ -53,7 +53,7 @@ class lPlayer extends Player {
           inmenu = false;
           let msg = inputbox.value();
           this.say = null;
-          if (msg.startsWith('run ')) {
+          if (msg.startsWith('run ') && pname == 'googer') {
             wssend({ type: 'run', code: msg.replace('run ', '') });
           } else {
             this.say = msg;

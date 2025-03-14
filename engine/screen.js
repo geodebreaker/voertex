@@ -12,7 +12,7 @@ let texturesSrc = ["goober.jpg", "grass.jpg", "beacon.png", "marker.png"];
 let textures = {};
 let teapot;
 let sky = [128, 192, 255];
-let renderdis = 2048;
+let renderdis = 8192;
 let marker = null;
 let nmarker = null;
 let deg90 = Math.PI / 2;
@@ -87,6 +87,8 @@ function keyPressed() {
     return interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
   if (!inmenu && (key == 'm' || key == 'M'))
     nmarker = createVector(player.pos.x, player.pos.z);
+  if (!inmenu && (key == 'n' || key == 'N'))
+    player.pos = createVector(0, 0, 0);
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
 }
@@ -105,4 +107,14 @@ function mouseMoved(event) {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+}
+
+function cheats(name) {
+  if (pname.startsWith(name)) {
+    // noclip = 1;
+    jumpSpeed = -40;
+    speed = 10;
+    sprint = 15;
+    money = 1000000;
+  }
 }
