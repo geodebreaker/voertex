@@ -11,7 +11,7 @@ const server = process.argv[2] == '-d' ? http.createServer((req, res) => {
   }).resume();
 }) : null;
 
-const wss = new WebSocket.Server(server ? { server } : { port: 80 });
+const wss = new WebSocket.Server(server ? { server } : { port: process.env.PORT });
 let newPersist = {
   money: 200
 };
