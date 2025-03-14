@@ -83,6 +83,9 @@ function drawObj(x, y, m) {
 	translate(...x.pos.slice(0, 3));
 	if (x.tex) {
 		texture(textures[x.tex]);
+		if (x.wrap) {
+			textureWrap(REPEAT);
+		}
 	} else {
 		fill(...x.col.slice(0, 4));
 	}
@@ -94,7 +97,7 @@ function drawObj(x, y, m) {
 	}
 	if (x.pos[4])
 		translate(0, -x.pos[4] / 2, 0)
-	box(...x.pos.slice(3, 6));
+	box(...x.pos.slice(3, 6), ...(x.wrap ? [textures[x.tex].width, textures[x.tex].height] : []));
 	pop();
 }
 

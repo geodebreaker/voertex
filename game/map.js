@@ -171,10 +171,23 @@ mdlRef.building = {
       col: [150, 150, 150]
     },
 
-    // roof
+    // roof / floor 1
     {
-      pos: [0, -200, 0, 300, 20, 300],
-      col: [120, 120, 120],
+      pos: [0, -200, 50, 300, 20, 200],
+      col: [130, 130, 130],
+      collide: true,
+    },
+    {
+      pos: [50, -200, -100, 200, 20, 100],
+      col: [130, 130, 130],
+      collide: true,
+    },
+
+    // ladder
+    {
+      pos: [50, -200, -100, 200, 20, 100],
+      tex: "ladder",
+      wrap: true,
       collide: true,
     },
 
@@ -184,6 +197,11 @@ mdlRef.building = {
       col: [120, 120, 120],
       collide: true,
     },
+    // {
+    //   pos: [50, -500, -100, 200, 20, 100],
+    //   col: [130, 130, 130],
+    //   collide: true,
+    // },
 
     // walls
     {
