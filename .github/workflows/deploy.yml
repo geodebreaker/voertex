@@ -66,14 +66,11 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b gh-pages
-          # git reset --hard
-          # git clean -fd
-          # git checkout main
-          # git pull origin main
-          # git add .
-          # git commit -m "Deploy to GitHub Pages"
-          # git push --force origin gh-pages
+          git checkout gh-pages
+          git pull origin main
+          git add .
+          git commit -m "Update gh-pages from main"
+          git push --force origin gh-pages
 
      
   finish:
