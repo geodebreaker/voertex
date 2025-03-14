@@ -65,14 +65,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: what
-        uses: actions/deploy-pages@v4
+      # - name: what
+      #   uses: actions/deploy-pages@v4
 
-      # - name: Deploy to GitHub Pages
-      #   run: |
-      #     git checkout -b pub
-      #     git pull origin main
-      #     git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git pub
+      - name: Deploy to GitHub Pages
+        run: |
+          git checkout -b pub
+          git pull origin main
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git pub
 
   finish:
     needs: [deploy_eb, deploy_github_pages]
