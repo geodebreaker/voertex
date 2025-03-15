@@ -48,6 +48,27 @@
       overflow-y: scroll;
     }
 
+    div:has(.listing) {
+      padding: 0px;
+    }
+
+    .listing {
+      display: block;
+      font-size: 24px;
+      border-bottom: 2px solid #000;
+      background: #2228;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .listing:hover {
+      background: #4448;
+    }
+
+    .plrs {
+      float: right;
+    }
+
     input::placeholder {
       color: #ccc;
     }

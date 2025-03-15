@@ -120,14 +120,29 @@ function connect(iws) {
         chatMsg(x.name + ' left');
         delete players[x.name];
         break;
+      case 'servers':
+        displaySvrs(x.servers);
+        break;
     }
   };
   if (iws) console.log('connected');
 }
 
+function joinSvr(svr) {
+  serverid = svr;
+  pname = tsin.name.value();
+  if (pname.length >= 3 && pname.length <= 12) {
+    if (window.localStorage) localStorage.name = pname;
+    wsfail = '';
+    if (ws.readyState == WebSocket.OPEN) joinGame();
+    else if (WSURL) connect();
+    else wsfail = 'Still searching, try again in 5 seconds.';
+  } else wsfail = 'name needs to be between 3 and 12 chars long.';
+}
+
 function joinGame() {
   talert = 'Joining...';
-  wssend({ type: 'join', name: pname, svr: 'main' });
+  wssend({ type: 'join', name: pname, svr: serverid });
 }
 
 function wssend(data) {
@@ -168,6 +183,7 @@ function testUrl(url) {
       hr = true;
       try {
         if (JSON.parse(x.data).type == 'servers') {
+          displaySvrs(JSON.parse(x.data).servers);
           y(ws);
         } else {
           ws.close();

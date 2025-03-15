@@ -92,6 +92,7 @@ function drawHUD() {
 function drawTitleScreen() {
   tsin.name.position(width / 2 - 180, height * .85);
   tsin.pass.position(width / 2 - 180, height * .85 + 40);
+  tsin.svrs.position(width / 2 - 300, height * .20);
 
   bg();
 
@@ -116,18 +117,6 @@ function drawTitleScreen() {
 }
 
 function makeTitleScreen() {
-  let conn = e => {
-    if (e.key == "Enter") {
-      pname = tsin.name.value();
-      if (pname.length >= 3 && pname.length <= 12) {
-        if (window.localStorage) localStorage.name = pname;
-        wsfail = '';
-        if (ws.readyState == WebSocket.OPEN) joinGame();
-        else if (WSURL) connect();
-        else wsfail = 'Still searching, try again in 5 seconds.';
-      } else wsfail = 'name needs to be between 3 and 12 chars long.';
-    }
-  };
   titlescreen = true;
   inmenu = true;
   tsin = {};
@@ -135,12 +124,20 @@ function makeTitleScreen() {
   tsin.name.position(width / 2 - 180, height * .85);
   tsin.name.size(430, 20);
   tsin.name.elt.focus();
-  tsin.name.elt.onkeydown = conn;
   tsin.pass = createInput('');
   tsin.pass.position(width / 2 - 180, height * .85 + 40);
   tsin.pass.size(430, 20);
   tsin.pass.elt.placeholder = 'Passwords have not been implemented';
-  // tsin.pass.elt.onkeydown = conn;
+  tsin.svrs = createDiv('');
+  tsin.svrs.position(width / 2 - 300, height * .20);
+  tsin.svrs.size(600, height * .60);
+  tsin.svrs.hide();
+}
+
+function displaySvrs(svrs) {
+  tsin.svrs.show();
+  tsin.svrs.elt.innerHTML = svrs.map(x => 
+    `<span class="listing" onclick="joinSvr('${x[0]}')"><b>${x[0]}</b><span class="plrs">${x[1]}</span></span>`).join('');
 }
 
 function makeHUD() {

@@ -55,6 +55,7 @@ function closeTitleScreen() {
   wsfail = '';
   tsin.name.remove();
   tsin.pass.remove();
+  tsin.svrs.remove();
   canvas.onclick = () => requestPointerLock();
   makeHUD();
 }
