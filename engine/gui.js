@@ -90,23 +90,23 @@ function drawHUD() {
 }
 
 function drawTitleScreen() {
-  tsin.name.position(width / 2 - 180, height * .75);
-  tsin.svr.position(width / 2 - 180, height * .75 + 40);
+  tsin.name.position(width / 2 - 180, height * .85);
+  tsin.pass.position(width / 2 - 180, height * .85 + 40);
 
   bg();
 
   textFont(font);
   fill(255);
   push();
-  translate(width / 2 - 250, height * .75);
+  translate(width / 2 - 250, height * .85);
   textAlign(LEFT, CENTER);
   textSize(18);
   text('Name:', 0, 10);
   translate(0, 40);
-  text('Server:', 0, 10);
+  text('Pass:', 0, 10);
   pop();
   push();
-  translate(width / 2 + 60, height * .25);
+  translate(width / 2 + 60, height * .1);
   textAlign(CENTER, CENTER);
   textSize(70);
   text('V OERTEX', -textWidth('V') / 2 - 5, 0);
@@ -118,11 +118,13 @@ function drawTitleScreen() {
 function makeTitleScreen() {
   let conn = e => {
     if (e.key == "Enter") {
-      if (tsin.svr.value()) WSURL = (location.protocol == 'http:' ? 'ws://' : 'wss://') + tsin.svr.value();
       pname = tsin.name.value();
       if (pname.length >= 3 && pname.length <= 12) {
         if (window.localStorage) localStorage.name = pname;
-        connect(true);
+        wsfail = '';
+        if (ws.readyState == WebSocket.OPEN) joinGame();
+        else if (WSURL) connect();
+        else wsfail = 'Still searching, try again in 5 seconds.';
       } else wsfail = 'name needs to be between 3 and 12 chars long.';
     }
   };
@@ -130,15 +132,15 @@ function makeTitleScreen() {
   inmenu = true;
   tsin = {};
   tsin.name = createInput(pname);
-  tsin.name.position(width / 2 - 180, height * .75);
+  tsin.name.position(width / 2 - 180, height * .85);
   tsin.name.size(430, 20);
   tsin.name.elt.focus();
   tsin.name.elt.onkeydown = conn;
-  tsin.svr = createInput('');
-  tsin.svr.position(width / 2 - 180, height * .75 + 40);
-  tsin.svr.size(430, 20);
-  tsin.svr.elt.placeholder = 'LEAVE BLANK TO AUTOFIND';
-  tsin.svr.elt.onkeydown = conn;
+  tsin.pass = createInput('');
+  tsin.pass.position(width / 2 - 180, height * .85 + 40);
+  tsin.pass.size(430, 20);
+  tsin.pass.elt.placeholder = 'Passwords have not been implemented';
+  // tsin.pass.elt.onkeydown = conn;
 }
 
 function makeHUD() {

@@ -31,25 +31,20 @@ mdlRef.money = {
   ]
 };
 
-(() => {
-  let MMmoney = ["Drop Money", () => {
-    if (money == 0) return;
-    let drop = parseInt(prompt('How much (up to ' + money + ')'));
-    if (!drop || drop < 0 || drop > money) return;
-    money -= drop;
-    let loc = player.pos.copy().add(mdir(camYaw, createVector(0, -50)));
-    createObj({ 
-      name: 'money', 
-      metadata: { from: pname, amt: drop }, 
-      pos: [loc.x, loc.y, loc.z]
-    });
-  }];
+registerMM(["Drop Money", () => {
+  if (money == 0) return;
+  let drop = parseInt(prompt('How much (up to ' + money + ')'));
+  keys = {};
+  if (!drop || drop < 0 || drop > money) return;
+  money -= drop;
+  makeMoney(drop);
+}], 'MNZXCVBFGHJKL1234567890');
 
-  let alpha = 'MNZXCVBFGHJKL1234567890';
-  let i = 0;
-
-  while(i < alpha.length && mmcon.main[alpha[i]] && mmcon.main[alpha[i]][0] != "Drop Money") i++;
-  if (mmcon.main[alpha[i]]?.[0] == "Drop Money") return;
-  if (i < alpha.length) mmcon.main[alpha[i]] = MMmoney;
-  else alert('ERROR');
-})();
+function makeMoney(amt, loc, from = pname) {
+  if (!loc) loc = player.pos.copy().add(mdir(camYaw, createVector(0, -50)));
+  createObj({
+    name: 'money',
+    metadata: { from, amt },
+    pos: [loc.x, loc.y, loc.z]
+  });
+}

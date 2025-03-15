@@ -54,7 +54,7 @@ function closeTitleScreen() {
   inmenu = false;
   wsfail = '';
   tsin.name.remove();
-  tsin.svr.remove();
+  tsin.pass.remove();
   canvas.onclick = () => requestPointerLock();
   makeHUD();
 }
@@ -164,4 +164,12 @@ function bg(x) {
   endShape();
   if (x) drawingContext.enable(drawingContext.DEPTH_TEST);
   pop();
+}
+
+function registerMM(mm, alpha, m='main') {
+  let i = 0;
+  while(i < alpha.length && mmcon[m][alpha[i]] && mmcon[m][alpha[i]][0] != mm[0]) i++;
+  if (mmcon[m][alpha[i]]?.[0] == mm[0]) return;
+  if (i < alpha.length) mmcon[m][alpha[i]] = mm;
+  else alert('ERROR');
 }

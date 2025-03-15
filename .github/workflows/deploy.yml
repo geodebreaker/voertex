@@ -59,6 +59,7 @@ jobs:
           yes | eb deploy --staged
 
   deploy_pages:
+    needs: start
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

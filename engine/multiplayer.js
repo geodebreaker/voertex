@@ -51,39 +51,36 @@ function recvPackets(packets) {
 }
 
 let WSURL = null;
+
 (async () => {
   let url = new URL(window.location);
+  let urls = [];
   url.protocol = url.protocol == 'http:' ? 'ws' : 'wss';
-  if (await testUrl(url.href))
-    if (!WSURL) { return WSURL = url.href }
-    else return;
-  else if (WSURL) return;
+  urls[1] = url.href;
   url.host = 'svr.' + url.host;
-  if (await testUrl(url.href))
-    if (!WSURL) { return WSURL = url.href }
-    else return;
-  else if (WSURL) return;
-  else return false;
+  urls[0] = url.href;
+  for (let i = 0; i < urls.length; i++) {
+    let res = await testUrl(urls[i]);
+    if (res) {
+      WSURL = urls[i];
+      connect(res);
+      return
+    }
+  }
+  wsfail = 'Could not find server. Please provide server.';
+  setTimeout(() => WSURL = (location.protocol == 'http:' ? 'ws://' : 'wss://') + prompt('Provide server:'), 5e2);
 })();
 
 let ws = { readyState: WebSocket.CLOSED };
 
-function connect(ua) {
-  if (ua) wsfail = '';
-  if (!WSURL) {
-    wsfail = WSURL === null ?
-      'Still searching for servers...' :
-      'Could not find server. Please provide server.'
-    return;
-  }
-  talert = 'Connecting...';
+function connect(iws) {
+  if (!iws) talert = 'Connecting...';
   ws.onclose = null;
   if (ws.close) ws.close();
-  ws = new WebSocket(WSURL);
-  ws.onopen = () => {
-    talert = 'Joining...';
-    console.log('connected');
-    wssend({ type: 'join', name: pname, svr: 'main' });
+  ws = iws || new WebSocket(WSURL);
+  ws.onopen = () => { 
+    if (!iws) console.log('connected');
+    joinGame();
   };
   ws.onclose = () => {
     talert = '';
@@ -125,6 +122,12 @@ function connect(ua) {
         break;
     }
   };
+  if (iws) console.log('connected');
+}
+
+function joinGame() {
+  talert = 'Joining...';
+  wssend({ type: 'join', name: pname, svr: 'main' });
 }
 
 function wssend(data) {
@@ -163,12 +166,15 @@ function testUrl(url) {
     let hr = false;
     ws.onmessage = x => {
       hr = true;
-      ws.close();
       try {
         if (JSON.parse(x.data).type == 'servers') {
-          y(true);
-        } else y(false);
+          y(ws);
+        } else {
+          ws.close();
+          y(false);
+        }
       } catch (e) {
+        ws.close();
         y(false);
       }
     };
