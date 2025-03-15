@@ -3,6 +3,12 @@ name: Deploy to Elastic Beanstalk & GitHub Pages
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 on:
   push:
@@ -52,34 +58,36 @@ jobs:
           yes | eb use "$EB_ENV_NAME"
           yes | eb deploy --staged
 
-  deploy_github_pages:
-    needs: start
+  deploy_pages:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          node-version: '20'
-
-      # - name: what
-      #   uses: actions/deploy-pages@v4
+          path: '.'
 
       - name: Deploy to GitHub Pages
-        run: |
-          git checkout -b pub
-          git pull origin main
-          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git pub
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   finish:
-    needs: [deploy_eb, deploy_github_pages]
+    needs: [deploy_eb, deploy_pages]
     runs-on: ubuntu-latest
     steps:
       - name: Ping Discord
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          SITE_URL: ${{ secrets.SITE_URL }}
         run: |
           curl -X POST -H "Content-Type: application/json" -d '{"content":"Update finished"}' $WEBHOOK_URL
