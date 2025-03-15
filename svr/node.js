@@ -46,7 +46,7 @@ wss.on("connection", ws => {
 
   send(ws, {
     type: "servers", servers: Object.entries(svrs).map(x =>
-      [x[0], Object.values(x[1].packets).filter(x => !x.to).length])
+      [x[0], Object.values(x[1].packets ?? {}).filter(x => !x.to).length])
   })
 
   ws.on("message", x => {
@@ -175,11 +175,12 @@ setInterval(() => {
 }, 200);
 
 setInterval(() => {
+  console.log(svrs);
   wss.clients.forEach(x => {
     if (!x.name) {
       send(x, {
         type: "servers", servers: Object.entries(svrs).map(x =>
-          [x[0], Object.values(x[1].packets).filter(x => !x.to).length])
+          [x[0], Object.values(x[1].packets ?? {}).filter(x => !x.to).length])
       }, true);
     }
   });
