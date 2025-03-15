@@ -75,17 +75,21 @@ class lPlayer extends Player {
     if (!inmenu && (keys['a'] || keys['arrowleft'])) moveDir.x -= keys['shift'] ? sprint : speed;
     if (!inmenu && (keys['d'] || keys['arrowright'])) moveDir.x += keys['shift'] ? sprint : speed;
 
-    this.yv -= grav;
-    if (onGround()) {
+    if (!onladder) this.yv -= grav;
+    if (onGround() || onladder) {
       this.yv = 0;
       if (!inmenu && keys[' ']) {
-        this.yv += jumpSpeed;
+        if (onladder) this.yv = -ladderSpeed;
+        else this.yv -= jumpSpeed;
+      } else if (onladder) {
+        this.yv = ladderSpeed;
       }
     }
     this.yv *= 0.99;
 
     let rotatedDir = mdir(camYaw, moveDir).mult(dt * 0.06);
 
+    onladder = false;
     tryMove(rotatedDir, this.yv);
 
     interact = null;

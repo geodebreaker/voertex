@@ -19,9 +19,11 @@ let deg90 = Math.PI / 2;
 let deg180 = Math.PI;
 let money = 200;
 let noclip = false;
-let jumpSpeed = -12;
+let jumpSpeed = 12;
 let grav = -1;
 let tileShader;
+let ladderSpeed = 4;
+let onladder = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -114,7 +116,7 @@ function windowResized() {
 function cheats(name) {
   if (pname.startsWith(name)) {
     // noclip = 1;
-    jumpSpeed = -40;
+    jumpSpeed = 40;
     speed = 10;
     sprint = 15;
     money = 1000000;
