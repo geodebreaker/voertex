@@ -38,7 +38,7 @@ function testCollideAll(P, S, ca, Py, test) {
     push();
     obj.translate();
     let o = obj.obj.every((x, i) => {
-      if (!x.collide && !ca) return true;
+      if (x.skip || !x.collide && !ca) return true;
       push();
       translate(...x.pos.slice(0, 3));
       let s = x.pos.slice(3, 6);

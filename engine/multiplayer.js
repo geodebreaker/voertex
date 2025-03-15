@@ -12,9 +12,9 @@ let serverid = null;
 function updatePlayers(dt) {
   Object.values(players).forEach(plr => {
     if (!plr.enabled) return;
-    // if (plr.mp.time - Date.now() < 60e3)
+    // if (plr.mp.time - now() < 60e3)
     //   return delete players[plr.name];
-    if (Date.now() - plr.mp.time > 20e3)
+    if (now() - plr.mp.time > 20e3)
       return plr.enabled = false;
     else plr.enabled = true;
     plr.tick(dt);
@@ -25,7 +25,7 @@ function createPacket() {
   if (!player || ws.readyState == WebSocket.closed) return;
   let packet = {
     buffer: player.buffer,
-    t: Date.now(),
+    t: now(),
     mapUD,
     persist: {
       money,
@@ -152,6 +152,7 @@ function wsupdate(data) {
       chatMsg(x[0], x[1])
     });
   }
+  if (data.time) timeOff = data.time - Date.now();
   data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);
 }
@@ -161,8 +162,8 @@ function testUrl(url) {
     let ws = new WebSocket(url);
     let hr = false;
     ws.onmessage = x => {
-      ws.close();
       hr = true;
+      ws.close();
       try {
         if (JSON.parse(x.data).type == 'servers') {
           y(true);
@@ -171,8 +172,14 @@ function testUrl(url) {
         y(false);
       }
     };
+    ws.onclose = () => {
+      if (hr) return;
+      hr = true;
+      y(false);
+    }
     setTimeout(() => {
       if (hr) return;
+      hr = true;
       ws.close();
       y(false);
     }, 3e3);

@@ -8,7 +8,7 @@ let font;
 let inmenu;
 let inputbox;
 let firstperson = 1;
-let texturesSrc = ["goober.jpg", "grass.jpg", "beacon.png", "marker.png", "ladder.png"];
+let texturesSrc = ["goober.jpg", "grass.jpg", "beacon.png", "marker.png", "ladder.png", "opaque.webp", "bg.webp"];
 let textures = {};
 let teapot;
 let sky = [128, 192, 255];
@@ -24,6 +24,14 @@ let grav = -1;
 let tileShader;
 let ladderSpeed = 4;
 let onladder = false;
+let floor = "grass";
+let minimenu = null;
+let mmcon = {
+  main: {
+    Z: ["Respawn", () => player.pos = createVector(0, 0, 0)],
+    X: ["Marker", () => nmarker = createVector(player.pos.x, player.pos.z)],
+  }
+};
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -67,11 +75,13 @@ function draw() {
       noStroke();
       rect(-width / 2, -height / 2, width, height);
       drawingContext.enable(drawingContext.DEPTH_TEST);
+    } else {
+      bg(true);
     }
     tick();
     draw3D();
   } else {
-    background(128);
+    background(0);
   }
 
   push();
@@ -87,12 +97,17 @@ function draw() {
 
 function keyPressed() {
   keys[key.toLowerCase()] = true;
+  if (minimenu && mmcon[minimenu][key.toUpperCase()]) {
+    let mm = minimenu;
+    minimenu = null;
+    mmcon[mm][key.toUpperCase()][1]();
+    return;
+  }
   if (!inmenu && interact && interact.keys.includes(key.toLowerCase()))
     return interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
-  if (!inmenu && (key == 'm' || key == 'M'))
-    nmarker = createVector(player.pos.x, player.pos.z);
-  if (!inmenu && (key == 'n' || key == 'N'))
-    player.pos = createVector(0, 0, 0);
+  if ((!inmenu || minimenu) && (key == 'q' || key == 'Q')) {
+    minimenu = minimenu ? null : 'main';
+  }
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
 }
@@ -121,4 +136,32 @@ function cheats(name) {
     sprint = 15;
     money = 1000000;
   }
+}
+
+let timeOff = 0;
+function now() {
+  return Date.now() + timeOff;
+}
+
+
+function bg(x) {
+  push();
+  if (x) {
+    translate(-width / 2, -height / 2);
+    drawingContext.disable(drawingContext.DEPTH_TEST);
+  }
+  let fc = frameCount * 0.1;
+  let fx = sin(fc * 0.1) * 20 + fc + camYaw * -50;
+  let fy = cos(fc * 0.1) * 20 + fc + camPitch * 50;
+  textureWrap(MIRROR);
+  texture(textures.bg);
+  tint(192);
+  beginShape();
+  vertex(0, 0, fx, fy);
+  vertex(width, 0, width + fx, fy);
+  vertex(width, height, 0, width + fx, height + fy);
+  vertex(0, height, 0, fx, height + fy);
+  endShape();
+  if (x) drawingContext.enable(drawingContext.DEPTH_TEST);
+  pop();
 }

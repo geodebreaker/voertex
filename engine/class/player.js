@@ -37,12 +37,12 @@ class lPlayer extends Player {
   }
 
   tick(dt) {
-    if (this.saytime < Date.now()) {
+    if (this.saytime < now()) {
       this.say = null
     }
     if (!inmenu && keys['t']) {
       this.say = '...';
-      this.saytime = Date.now() + 3e5;
+      this.saytime = now() + 3e5;
       inputbox = createInput("");
       inputbox.position(30, 180);
       inputbox.size(270, 20);
@@ -58,7 +58,7 @@ class lPlayer extends Player {
           } else {
             this.say = msg;
             if (this.say) {
-              this.saytime = Date.now() + 60e3;
+              this.saytime = now() + 60e3;
               chatToSend.push(this.say);
               chatMsg(this.name, this.say);
             }
@@ -141,7 +141,7 @@ class mPlayer extends Player {
     this.say = say;
     this.npos = createVector();
     this.opos = createVector();
-    this.ping = Date.now() - packet.t;
+    this.ping = now() - packet.t;
     this.pingl = [packet.t];
   }
 
@@ -155,7 +155,7 @@ class mPlayer extends Player {
     this.ubuffer();
     if (this.name != pname) this.enabled = true;
     if (this.pingl.length > 5) this.pingl = [];
-    this.pingl.push(Date.now() - packet.t);
+    this.pingl.push(now() - packet.t);
     if (this.pingl.length == 5) {
       this.ping = 0;
       this.pingl.forEach(x => this.ping += x);

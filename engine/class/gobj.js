@@ -1,9 +1,20 @@
 class Gobj {
   constructor(mdl, id) {
-    this.id = id;//id();
-    this.mdl = cloneObj(mdlRef[mdl.name]);
+    this.id = id;
+    if (mdl.name) {
+      this.mdlname = mdl.name;
+      this.mdl = cloneObj(mdlRef[mdl.name]);
+    } else if (mdl.custom) {
+      this.mdlname = '[CUSTOM]';
+      this.mdl = mdl.custom;
+    }
     this.obj = this.mdl.obj;
     delete this.mdl.obj;
+    if (mdl.metadata) {
+      let meta = this.obj.find(x => x.meta);
+      if (!meta) this.obj.unshift({meta: true, skip: true});
+      meta.data = mdl.metadata;
+    }
     this.obj = this.obj.map((x, i) => {
       if (x.preset) {
         let p = mdlRef[x.preset];
@@ -22,6 +33,7 @@ class Gobj {
     this.rot = mdl.rot || [0, 0, 0];
     if (mdl.rh) this.rot[1] = mdl.rh;
     world.objs[this.id] = this;
+    if (mdl.metadata) this.obj.find(x => x.meta).calc(true);
   }
 
   translate() {
@@ -32,14 +44,14 @@ class Gobj {
   }
 }
 
-// function id() {
-//   return ':' + Math.floor(Math.random() * (36 ** 8 - 1)).toString(36);
-// }
+function nid() {
+  return ':' + Math.floor(Math.random() * (36 ** 8 - 1)).toString(36);
+}
 
 function createWorld() {
   world.objs = {};
   map.objs.forEach((x, i) => {
-    new Gobj(x, i);
+    new Gobj(x, ':o:' + i);
   })
 }
 
@@ -79,9 +91,24 @@ function domapUD(x) {
     case 'calc':
       let obj = world.objs[x[1]].obj[x[2]];
       let data = x[3];
-
       obj.data = data;
       obj.calc(true);
       break;
+    case 'new':
+      createObj(x[1], x[2], true);
+      break;
+    case 'del':
+      deleteObj(x[1], true);
+      break;
   }
+}
+
+function createObj(mdl, id=nid(), x=false) {
+  if (!x) mapUD.push(['new', mdl, id]);
+  return new Gobj(mdl, id);
+}
+
+function deleteObj(pid, x) {
+  if (!x) mapUD.push(['del', pid]); 
+  delete world.objs[pid];
 }

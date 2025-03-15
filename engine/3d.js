@@ -66,7 +66,7 @@ function drawObjs() {
 		let p = _renderer.uModelMatrix.multiplyVec4(0, 0, 0, 1);
 		p = createVector(p[0], p[2]).sub(player.pos.x, player.pos.z);
 		if (p.magSq() > renderdis * renderdis) return pop();
-		x.obj.forEach(x => drawObj(x, afterdraw));
+		x.obj.forEach(x => x.skip ? null : drawObj(x, afterdraw));
 		pop();
 	});
 
@@ -109,7 +109,7 @@ function drawObj(x, y, m) {
 
 function drawGrid(size, step) {
 	let floorSize = 5000;
-	let tex = textures.grass;
+	let tex = textures[floor];
 	push();
 	textureWrap(MIRROR);
 	rotateX(HALF_PI);

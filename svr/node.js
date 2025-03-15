@@ -98,7 +98,8 @@ wss.on("connection", ws => {
           packets: svrs[ws.svr].packets,
           map: getMap(),
           mapUD: svrs[ws.svr].mapUD,
-          persist: svrs[ws.svr].persist[ws.name] || svrs[ws.svr].newPersist
+          persist: svrs[ws.svr].persist[ws.name] || svrs[ws.svr].newPersist,
+          time: Date.now()
         });
         wss.clients.forEach(x => {
           if (x.name && x != ws)

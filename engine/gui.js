@@ -57,11 +57,13 @@ function drawHUD() {
   translate(width - 15, height - 15);
   textAlign(RIGHT, BOTTOM);
   textSize(12);
-  txt = '$' + money;
+  txt =
+    (minimenu ? Object.entries(mmcon[minimenu]).map(x => `[${x[0]}] ${x[1][0]}`).join('\n') : '[Q] MiniMenu')
+    + '\n$' + money;
   twidth = textWidth(txt);
   theight = textLeading() * (txt.split('\n').length);
   fill(0, 0, 0, 128);
-  rect(-twidth - 5, -theight -5, twidth + 10, theight + 10);
+  rect(-twidth - 5, -theight - 5, twidth + 10, theight + 10);
   fill(255);
   text(txt, 0, 0);
   pop();
@@ -91,6 +93,8 @@ function drawTitleScreen() {
   tsin.name.position(width / 2 - 180, height * .75);
   tsin.svr.position(width / 2 - 180, height * .75 + 40);
 
+  bg();
+
   textFont(font);
   fill(255);
   push();
@@ -102,10 +106,12 @@ function drawTitleScreen() {
   text('Server:', 0, 10);
   pop();
   push();
-  translate(width / 2, height * .25);
+  translate(width / 2 + 60, height * .25);
   textAlign(CENTER, CENTER);
   textSize(70);
-  text('VOERTEX', 0, 0)
+  text('V OERTEX', -textWidth('V') / 2 - 5, 0);
+  translate(-textWidth('OERTEX') / 2 - 60, -16, 45);
+  image(textures.opaque, 0, 0);
   pop();
 }
 

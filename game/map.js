@@ -6,13 +6,13 @@ mdlRef.door = {
       interact: {
         text() {
           return this.data.owner || !this.buyable ?
-            (this.data.owner == pname || !this.buyable  ?
+            (this.data.owner == pname || !this.buyable ?
               (this.data.open ? '[E] To close' : '[E] To open') + (this.buyable ? '\n[P] To sell' : '') :
               'Owned by ' + this.data.owner) :
             (money >= this.cost ? '[E] To buy house' : 'You cannot afford this house')
         },
         e() {
-          if (this.data.owner || !this.buyable ) {
+          if (this.data.owner || !this.buyable) {
             if (this.data.owner != pname && this.buyable) return;
             this.data.open = !this.data.open;
             if (!this.data.open)
