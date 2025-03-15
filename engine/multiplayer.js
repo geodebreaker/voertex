@@ -61,6 +61,7 @@ let WSURL = null;
   urls[0] = url.href;
   for (let i = 0; i < urls.length; i++) {
     let res = await testUrl(urls[i]);
+    console.log(res, urls[i]);
     if (res) {
       WSURL = urls[i];
       connect(res);
@@ -68,7 +69,14 @@ let WSURL = null;
     }
   }
   wsfail = 'Could not find server. Please provide server.';
-  setTimeout(() => WSURL = (location.protocol == 'http:' ? 'ws://' : 'wss://') + prompt('Provide server:'), 5e2);
+  let z = () => setTimeout(async () => {
+    let url = (location.protocol == 'http:' ? 'ws://' : 'wss://') + prompt('Provide server:');
+    let res = await testUrl(url);
+    if (res) {
+      WSURL = url;
+      connect(res);
+    } else z();
+  }, 5e2);
 })();
 
 let ws = { readyState: WebSocket.CLOSED };

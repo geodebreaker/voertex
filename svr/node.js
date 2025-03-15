@@ -155,7 +155,7 @@ function send(ws, data, nolog) {
 }
 
 setInterval(() => {
-  [].concat(...Object.values(svrs).map(x => Object.values(x.packets))).forEach(packet => {
+  [].concat(...Object.values(svrs ?? {}).map(x => Object.values(x.packets ?? {}))).forEach(packet => {
     if (packet.t + 9e3 < Date.now())
       packet.to = true;
   });
