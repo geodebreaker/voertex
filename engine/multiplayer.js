@@ -113,7 +113,7 @@ function connect(iws) {
         break;
       case 'connected':
         talert = '';
-        if (!wshasopened) closeTitleScreen();
+        if (titlescreen) closeTitleScreen();
         wshasopened = true;
         wsupdate(x);
         break;

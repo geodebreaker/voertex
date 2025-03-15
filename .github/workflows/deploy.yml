@@ -91,4 +91,4 @@ jobs:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           SITE_URL: ${{ secrets.SITE_URL }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"content":"Update finished"}' $WEBHOOK_URL
+          curl -X POST -H "Content-Type: application/json" -d '{"content":"Update finished, check $SITE_URL"}' $WEBHOOK_URL
