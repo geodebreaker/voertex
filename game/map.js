@@ -189,6 +189,7 @@ mdlRef.building = {
       tex: "ladder",
       wrap: [1, 5],
       ladder: true,
+      collide: true,
       dl: true,
     },
 

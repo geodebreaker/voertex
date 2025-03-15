@@ -3,10 +3,11 @@ function tryMove(d, j) {
   let x = noclip ? false : testCollideAll(createVector(d.x, 0).add(player.pos.x, player.pos.z), 25, false, player.pos.y);
   let z = noclip ? false : testCollideAll(createVector(0, d.z).add(player.pos.x, player.pos.z), 25, false, player.pos.y);
   if (!x) player.pos.x += d.x;
+  else tryLadder(x[0]);
   if (!z) player.pos.z += d.z;
+  else tryLadder(z[0]);
   if (y) {
     player.yv = 0;
-    // console.log(player.yv)
   } else {
     player.pos.y += j;
   }
@@ -14,6 +15,11 @@ function tryMove(d, j) {
 
 function onGround(j=5) {
   return player.pos.y + j > 0 || (noclip ? false : testCollideAll(createVector(player.pos.x, player.pos.z), 25, false, player.pos.y + j, true));
+}
+
+function tryLadder(p) {
+  let o = world.objs[p[0]].obj[p[1]];
+  if (o.ladder) onladder = true;
 }
 
 function mdir(d, p) { 

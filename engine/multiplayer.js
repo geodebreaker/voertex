@@ -54,10 +54,14 @@ let WSURL = null;
 (async () => {
   let url = new URL(window.location);
   url.protocol = url.protocol == 'http:' ? 'ws' : 'wss';
-  if (await testUrl(url)) return WSURL = url.href;
+  if (await testUrl(url.href))
+    if (!WSURL) { return WSURL = url.href }
+    else return;
   else if (WSURL) return;
   url.host = 'svr.' + url.host;
-  if (await testUrl(url)) return WSURL = url.href;
+  if (await testUrl(url.href))
+    if (!WSURL) { return WSURL = url.href }
+    else return;
   else if (WSURL) return;
   else return false;
 })();
@@ -158,9 +162,9 @@ function testUrl(url) {
     let hr = false;
     ws.onmessage = x => {
       ws.close();
+      hr = true;
       try {
-        if (JSON.parse(x.data).type == '"servers"') {
-          hr = true;
+        if (JSON.parse(x.data).type == 'servers') {
           y(true);
         } else y(false);
       } catch (e) {
