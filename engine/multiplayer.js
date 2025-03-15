@@ -83,6 +83,7 @@ let ws = { readyState: WebSocket.CLOSED };
 
 function connect(iws) {
   if (!iws) talert = 'Connecting...';
+  else wshasopened = true;
   ws.onclose = null;
   if (ws.close) ws.close();
   ws = iws || new WebSocket(WSURL);

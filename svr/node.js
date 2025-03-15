@@ -27,7 +27,7 @@ let newSvr = {
 
 let svrs = {};
 
-function createSvr(name, ns={}) {
+function createSvr(name, ns = {}) {
   let s = structuredClone(newSvr);
   Object.entries(ns).forEach(x => s[x[0]] = x[1]);
   svrs[name] = s;
@@ -75,7 +75,7 @@ wss.on("connection", ws => {
                 svrs[ws.svr].mapUD.push(x);
               }
               if (x[0] == 'del') {
-                svrs.mapUD = svrs[ws.svr].mapUD.filter(y =>
+                svrs[ws.svr].mapUD = svrs[ws.svr].mapUD.filter(y =>
                   !((y[0] == 'add' && y[2] == x[1]) || (y[0] == 'calc' && y[1] == x[1]))
                 );
               }
@@ -175,7 +175,6 @@ setInterval(() => {
 }, 200);
 
 setInterval(() => {
-  console.log(svrs);
   wss.clients.forEach(x => {
     if (!x.name) {
       send(x, {
@@ -195,14 +194,13 @@ if (server) server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 
-function getMap() {
-  return (//fs.readFileSync('./svr/lock.js').toString()
-    //.replaceAll("***", Math.floor(Math.random() * (36 ** 8 - 1)).toString(36)) +
-    fs.readdirSync('./game/').map(x => {
-      // if (fs.fstatSync(2, './game/' + x).isFile())
-      try { return fs.readFileSync('./game/' + x).toString(); } catch (e) { return '' }
-      // else return 'console.log("error")';
-    }).join('\r\n\r\n'));
+function getMap(map) {
+  return (
+    ['map.js', ...fs.readdirSync('./game/' + (map ? map + '/' : '')).filter(x => x != 'map.js')]
+      .map(x => {
+        try { return fs.readFileSync('./game/' + (map ? map + '/' : '') + x).toString(); }
+        catch (e) { return '' }
+      }).join('\r\n\r\n'));
 }
 
 process.on('uncaughtException', x => console.error(x));
