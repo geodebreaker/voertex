@@ -2,6 +2,7 @@ const http = require("http");
 const static = require("node-static");
 const WebSocket = require("ws");
 const fs = require("fs");
+const NPVER = "0.0";
 
 const fileServer = new static.Server("");
 
@@ -13,16 +14,27 @@ const server = process.argv[2] == '-d' ? http.createServer((req, res) => {
 
 const wss = new WebSocket.Server(server ? { server } : { port: process.env.PORT });
 
+let users = {};
+
 let newSvr = {
   packets: {},
   mapUD: [],
-  persist: {},
+  persist: {
+    googer: {
+      money: 200,
+      pos: [0, 0, 0],
+      rot: [0, 0],
+      effect: {},
+      perm: 3,
+    }
+  },
   marker: null,
   map: '',
   newPersist: {
-    money: 200,
-    pos: [0, 0, 0]
-  }
+    perm: 0
+  },
+  hide: false,
+  bans: {}
 };
 
 let svrs = {};
@@ -34,9 +46,10 @@ function createSvr(name, ns = {}) {
 }
 
 createSvr('main');
-createSvr('tortuga');
-createSvr('skibidi');
+createSvr('uncensored');
+createSvr('sandbox');
 createSvr('pop', { persist: { pop: { money: 1000 } } });
+createSvr('hidden', { hide: true });
 
 wss.on("connection", ws => {
   console.log("connection");
@@ -45,7 +58,7 @@ wss.on("connection", ws => {
   ws.svr = null;
 
   send(ws, {
-    type: "servers", servers: Object.entries(svrs).map(x =>
+    type: "servers", servers: Object.entries(svrs).filter(x => !x[1].hide).map(x =>
       [x[0], Object.values(x[1].packets ?? {}).filter(x => !x.to).length])
   })
 
@@ -61,7 +74,7 @@ wss.on("connection", ws => {
           }
           if (p.chat) {
             wss.clients.forEach(x => {
-              if (x.name && x != ws)
+              if (x.name && x != ws && x.svr == ws.svr)
                 x.chat.push(...p.chat.map(x => [ws.name, x]));
             });
           }
@@ -71,17 +84,22 @@ wss.on("connection", ws => {
                 let y = svrs[ws.svr].mapUD.find(y => y[0] == 'calc' && y[1] == x[1] && y[2] == y[2]);
                 if (y) y[3] = x[3];
                 else svrs[ws.svr].mapUD.push(x);
-              } else {
-                svrs[ws.svr].mapUD.push(x);
-              }
-              if (x[0] == 'del') {
+              } else if (x[0] == 'del') {
+                let len = svrs[ws.svr].mapUD.length;
                 svrs[ws.svr].mapUD = svrs[ws.svr].mapUD.filter(y =>
                   !((y[0] == 'add' && y[2] == x[1]) || (y[0] == 'calc' && y[1] == x[1]))
                 );
+                if (len == svrs[ws.svr].mapUD.length) 
+                  svrs[ws.svr].mapUD.push(x);
+              } else if(x[0] == 'event') {
+                if (x[1] == 'game/ban')
+                  svrs[ws.svr].bans[x[2][0]] = x[2][1] || null;
+              } else {
+                svrs[ws.svr].mapUD.push(x);
               }
             });
             wss.clients.forEach(x => {
-              if (x.name && x != ws)
+              if (x.name && x != ws && x.svr == ws.svr)
                 x.mapUD.push(...p.mapUD);
             });
             delete p.mapUD;
@@ -94,12 +112,24 @@ wss.on("connection", ws => {
         }
         break;
       case 'join':
+        if (parseInt(NPVER.split('.')[0]) > parseInt(msg.ver.split('.')[0])) {
+          send(ws, { type: 'fail', error: 'Ivalid network protocol version. You need a new client.' });
+          return ws.close();
+        }
+        if (parseInt(NPVER.split('.')[0]) < parseInt(msg.ver.split('.')[0])) {
+          send(ws, { type: 'fail', error: 'Um, this server needs an update!' });
+          return ws.close();
+        }
         if (userOn(msg.name)) {
           send(ws, { type: 'fail', error: 'name taken' });
           return ws.close();
         }
         if (!svrs[msg.svr]) {
           send(ws, { type: 'fail', error: 'room does not exist' });
+          return ws.close();
+        }
+        if (svrs[msg.svr].bans.hasOwnProperty(msg.name)) {
+          send(ws, { type: 'fail', error: 'you are banned in that room' });
           return ws.close();
         }
         ws.svr = msg.svr;
@@ -113,7 +143,7 @@ wss.on("connection", ws => {
           time: Date.now()
         });
         wss.clients.forEach(x => {
-          if (x.name && x != ws)
+          if (x.name && x != ws && x.svr == ws.svr)
             send(x, {
               type: 'pjoin',
               name: ws.name
@@ -121,13 +151,17 @@ wss.on("connection", ws => {
         });
         break;
       case 'run':
-        if (ws.name)
+        if (/*users[ws.name].admin*/ws.name == 'googer')
           wss.clients.forEach(x => {
-            send(x, {
-              type: 'run',
-              code: msg.code
-            })
+            if (x.svr == ws.svr)
+              send(x, {
+                type: 'run',
+                code: msg.code
+              })
           });
+        break;
+      case 'backup':
+        send(ws, {type:'backup',svrs,users}, true)
         break;
     }
   });
@@ -135,7 +169,7 @@ wss.on("connection", ws => {
   ws.on("close", () => {
     if (ws.name)
       wss.clients.forEach(x => {
-        if (x.name)
+        if (x.name && x.svr == ws.svr)
           send(x, {
             type: 'pleave',
             name: ws.name
@@ -178,7 +212,7 @@ setInterval(() => {
   wss.clients.forEach(x => {
     if (!x.name) {
       send(x, {
-        type: "servers", servers: Object.entries(svrs).map(x =>
+        type: "servers", servers: Object.entries(svrs).filter(x => !x[1].hide).map(x =>
           [x[0], Object.values(x[1].packets ?? {}).filter(x => !x.to).length])
       }, true);
     }

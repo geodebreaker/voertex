@@ -11,8 +11,8 @@ class Player {
     if (!this.enabled) return;
     push();
     stroke(0);
-    if (this.col.__proto__.constructor.name == 'Color')
-      fill(this.col);
+    if (this.col.constructor.name == 'Array')
+      fill(...this.col);
     else
       texture(textures[this.col]);
     translate(this.pos.x, this.pos.y - 25, this.pos.z);
@@ -28,7 +28,15 @@ class Player {
 
 class lPlayer extends Player {
   constructor(x, y, z) {
-    super(x, y, z, pname, color(255, 0, 0));
+    super(x, y, z, pname, random([
+      [255, 0, 0],
+      [0, 255, 0],
+      [0, 0, 255],
+      [255, 144, 48], 
+      [255, 0, 192],
+      [192, 0, 255],
+      [0, 192, 128]
+    ]));
     this.buffer = [];
     this.saytime = 0;
     this.bt = 0;
@@ -37,6 +45,9 @@ class lPlayer extends Player {
   }
 
   tick(dt) {
+    if (PERM == 1) this.col = [224, 224, 0];
+    if (PERM == 2) this.col = [255, 255, 0];
+    if (PERM == 3) this.col = "goober";
     if (this.saytime < now()) {
       this.say = null
     }
@@ -75,9 +86,10 @@ class lPlayer extends Player {
     if (!inmenu && (keys['a'] || keys['arrowleft'])) moveDir.x -= keys['shift'] ? sprint : speed;
     if (!inmenu && (keys['d'] || keys['arrowright'])) moveDir.x += keys['shift'] ? sprint : speed;
 
-    if (!onladder) this.yv -= grav;
-    if (onGround() || onladder) {
-      this.yv = 0;
+    if (!inmenu && keys['alt']) this.yv += jumpSpeed * (noclip ? 1 : .5);
+    if (!onladder && !noclip) this.yv -= grav;
+    if (onGround() || onladder || noclip) {
+      if (!noclip) this.yv = 0;
       if (!inmenu && keys[' ']) {
         if (onladder) this.yv = -ladderSpeed;
         else this.yv -= jumpSpeed;
@@ -87,14 +99,15 @@ class lPlayer extends Player {
     }
     this.yv *= 0.99;
 
-    let rotatedDir = mdir(camYaw, moveDir).mult(dt * 0.06);
+    let rotatedDir = mdir(camYaw, moveDir).mult(Math.min(dt, 100) * 0.06);
 
     onladder = false;
-    tryMove(rotatedDir, this.yv);
+    if (!frozen) tryMove(rotatedDir, this.yv);
+    if (noclip) this.yv = 0;
 
     interact = null;
     let front = this.pos.copy().add(mdir(camYaw, 70));
-    front = testCollideAll(createVector(front.x, front.z), 60, true);
+    front = testCollideAll(createVector(front.x, front.z), 60, true, player.pos.y + 20, 80);
     if (front) {
       front.map(x => world.objs[x[0]].obj[x[1]]).forEach(x => {
         if (x.interact) {
@@ -135,7 +148,7 @@ class mPlayer extends Player {
       time: packet.t,
     }
     let say = mp.buffer[0]?.s;
-    super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, mp.buffer[0].z, name, color(0, 255, 0));
+    super(mp.buffer[0]?.x || 0, mp.buffer[0]?.y || 0, mp.buffer[0].z, name, packet.col);
     if (name == pname) this.enabled = false;
     this.mp = mp;
     this.say = say;
@@ -161,6 +174,7 @@ class mPlayer extends Player {
       this.pingl.forEach(x => this.ping += x);
       this.ping /= this.pingl.length;
     }
+    this.col = packet.col;
   }
 
   tick(dt) {

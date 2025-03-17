@@ -19,16 +19,18 @@ let deg90 = Math.PI / 2;
 let deg180 = Math.PI;
 let money = 200;
 let noclip = false;
-let jumpSpeed = 12;
-let grav = -1;
+let jumpSpeed = 8;
+let grav = -0.5;
 let tileShader;
 let ladderSpeed = 4;
 let onladder = false;
 let floor = "grass";
+let frozen = false;
+
 let minimenu = null;
 let mmcon = {
   main: {
-    Z: ["Respawn", () => player.pos = createVector(0, 0, 0)],
+    Z: ["Respawn", () => { if (!frozen) { player.pos = createVector(0, 0, 0); oldPos = [] } }],
     X: ["Marker", () => nmarker = createVector(player.pos.x, player.pos.z)],
   }
 };
@@ -106,8 +108,12 @@ function keyPressed() {
   }
   if (!inmenu && interact && interact.keys.includes(key.toLowerCase()))
     return interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
-  if ((!inmenu || minimenu) && (key == 'q' || key == 'Q')) {
+  if ((!inmenu || minimenu) && (key == 'q' || key == 'Q'))
     minimenu = minimenu ? null : 'main';
+  if ((PERM > 0) && (!inmenu || minimenu) && (key == '/' || key == '?')) {
+    minimenu = minimenu ? null : 'cmd';
+    cmdEx = false;
+    mmcon.cmd.P[0] = 'Execute';
   }
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
@@ -127,16 +133,6 @@ function mouseMoved(event) {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-}
-
-function cheats(name) {
-  if (pname.startsWith(name)) {
-    // noclip = 1;
-    jumpSpeed = 40;
-    speed = 10;
-    sprint = 15;
-    money = 1000000;
-  }
 }
 
 let timeOff = 0;
@@ -167,10 +163,24 @@ function bg(x) {
   pop();
 }
 
-function registerMM(mm, alpha, m='main') {
+function registerMM(mm, alpha, m = 'main') {
   let i = 0;
-  while(i < alpha.length && mmcon[m][alpha[i]] && mmcon[m][alpha[i]][0] != mm[0]) i++;
+  while (i < alpha.length && mmcon[m][alpha[i]] && mmcon[m][alpha[i]][0] != mm[0]) i++;
   if (mmcon[m][alpha[i]]?.[0] == mm[0]) return;
   if (i < alpha.length) mmcon[m][alpha[i]] = mm;
-  else alert('ERROR');
+  else {
+    console.log('couldnt register mm', mm[0], m);
+    // alert('ERROR #CRMM (' + btoa(mm[0] + ',' + m).replace('=', '') + ')');
+  }
 }
+
+async function ask(msg) {
+  let res = prompt(msg);
+  keys = {};
+  return res;
+}
+
+let params = new URLSearchParams(location.search);
+let kickr = params.has('kick') ? params.get('kick') : false;
+let banr = params.has('ban');
+history.replaceState('', '', '/');

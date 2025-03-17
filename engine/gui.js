@@ -93,6 +93,7 @@ function drawTitleScreen() {
   tsin.name.position(width / 2 - 180, height * .85);
   tsin.pass.position(width / 2 - 180, height * .85 + 40);
   tsin.svrs.position(width / 2 - 300, height * .20);
+  tsin.svrs.size(600, height * .60);
 
   bg();
 
@@ -107,11 +108,11 @@ function drawTitleScreen() {
   text('Pass:', 0, 10);
   pop();
   push();
-  translate(width / 2 + 60, height * .1);
-  textAlign(CENTER, CENTER);
+  translate(width / 2 + 60, height * .03);
+  textAlign(CENTER, TOP);
   textSize(70);
   text('V OERTEX', -textWidth('V') / 2 - 5, 0);
-  translate(-textWidth('OERTEX') / 2 - 60, -16, 45);
+  translate(-textWidth('OERTEX') / 2 - 60, 20, 45);
   image(textures.opaque, 0, 0);
   pop();
 }
@@ -134,9 +135,16 @@ function makeTitleScreen() {
   tsin.svrs.hide();
 }
 
+let svrsto = null;
 function displaySvrs(svrs) {
   tsin.svrs.show();
-  tsin.svrs.elt.innerHTML = svrs.map(x => 
+  if (kickr !== false) {
+    svrsto = svrs;
+    tsin.svrs.elt.innerHTML = 
+      `<span class="listing kh">You where ${ban ? 'banned' : 'kicked'}</span>` + 
+      (kickr ? `<span class="listing kr">${kickr}</span>` : '') + 
+      `<span class="listing" onclick="kickr=false;displaySvrs(svrsto)">OK</span>`;
+  } else tsin.svrs.elt.innerHTML = svrs.map(x =>
     `<span class="listing" onclick="joinSvr('${x[0]}')"><b>${x[0]}</b><span class="plrs">${x[1]}</span></span>`).join('');
 }
 

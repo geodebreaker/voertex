@@ -1,3 +1,4 @@
+const NPVER = "0.0";
 let players = {};
 let buffersendlim = 5;
 let bufferlim = buffersendlim + 1;
@@ -25,11 +26,19 @@ function createPacket() {
   if (!player || ws.readyState == WebSocket.closed) return;
   let packet = {
     buffer: player.buffer,
+    col: player.col,
     t: now(),
     mapUD,
     persist: {
       money,
-      pos: [player.pos.x, player.pos.y, player.pos.z]
+      col: player.col,
+      pos: [player.pos.x, player.pos.y, player.pos.z],
+      effects: {
+        noclip: noclip || undefined, frozen: frozen || undefined, oldPos: oldPos?.length ? oldPos : undefined,
+        speedCheatsOn: speedCheatsOn || undefined, inARoom: inARoom || undefined
+      },
+      rot: [camYaw, camPitch],
+      perm: PERM,
     },
     marker: nmarker ? [nmarker.x, nmarker.y] : undefined,
     chat: chatToSend
@@ -61,7 +70,6 @@ let WSURL = null;
   urls[0] = url.href;
   for (let i = 0; i < urls.length; i++) {
     let res = await testUrl(urls[i]);
-    console.log(res, urls[i]);
     if (res) {
       WSURL = urls[i];
       connect(res);
@@ -87,7 +95,7 @@ function connect(iws) {
   ws.onclose = null;
   if (ws.close) ws.close();
   ws = iws || new WebSocket(WSURL);
-  ws.onopen = () => { 
+  ws.onopen = () => {
     if (!iws) console.log('connected');
     joinGame();
   };
@@ -151,7 +159,7 @@ function joinSvr(svr) {
 
 function joinGame() {
   talert = 'Joining...';
-  wssend({ type: 'join', name: pname, svr: serverid });
+  wssend({ type: 'join', name: pname, svr: serverid, ver: NPVER });
 }
 
 function wssend(data) {
@@ -168,8 +176,24 @@ function wsupdate(data) {
     createWorld();
   }
   if (data.persist) {
-    money = /*Skey +*/ data.persist.money;
+    // console.log(data.persist);
+    money = data.persist.money ?? 0;
+    if (data.persist.col) player.col = data.persist.col;
     if (data.persist.pos) player.pos.set(...data.persist.pos);
+    if (data.persist.rot) {
+      camYaw = data.persist.rot[0] || 0;
+      camPitch = data.persist.rot[1] || 0;
+    }
+    if (data.persist.effects) {
+      let f = data.persist.effects;
+      noclip = f.noclip ?? noclip;
+      frozen = f.frozen ?? frozen;
+      speedCheatsOn = f.speedCheatsOn ?? speedCheatsOn;
+      speedCheats(speedCheatsOn);
+      oldPos = f.oldPos ?? oldPos;
+      inARoom = f.inARoom ?? inARoom;
+    }
+    PERM = data.persist.perm ?? PERM;
   }
   if (data.marker) {
     marker = createVector(...data.marker);
@@ -192,7 +216,8 @@ function testUrl(url) {
       hr = true;
       try {
         if (JSON.parse(x.data).type == 'servers') {
-          displaySvrs(JSON.parse(x.data).servers);
+          if (localStorage?.name && params.get('room')) setTimeout(() => joinSvr(params.get('room')), 5e2);
+          else displaySvrs(JSON.parse(x.data).servers);
           y(ws);
         } else {
           ws.close();
@@ -216,3 +241,15 @@ function testUrl(url) {
     }, 3e3);
   });
 }
+
+addEvent('game/kick', (p, r) => {
+  if (p == pname) location = "?kick=" + (r ? encodeURI(r) : '');
+});
+
+addEvent('game/ban', (p, r) => {
+  if (p == pname) location = "?kick=" + (r ? encodeURI(r) : '') + '&ban=true';
+})
+
+addEvent('game/perm', (p, d) => {
+  if (p == pname) PERM = d;
+});

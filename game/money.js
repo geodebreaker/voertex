@@ -31,10 +31,9 @@ mdlRef.money = {
   ]
 };
 
-registerMM(["Drop Money", () => {
+registerMM(["Drop Money", async () => {
   if (money == 0) return;
-  let drop = parseInt(prompt('How much (up to ' + money + ')'));
-  keys = {};
+  let drop = parseInt(await ask('How much (up to ' + money + ')'));
   if (!drop || drop < 0 || drop > money) return;
   money -= drop;
   makeMoney(drop);

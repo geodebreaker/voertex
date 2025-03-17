@@ -185,25 +185,60 @@ mdlRef.building = {
 
     // ladder
     {
-      pos: [-100, 0, -149, 100, 500, 10],
+      pos: [-100, 0, -149, 100, 550, 10],
       tex: "ladder",
       wrap: [1, 5],
       ladder: true,
-      collide: true,
+      // collide: true,
       dl: true,
+    },
+
+    {
+      pos: [-98.5, -200, -100, 123, 20, 120],
+      ladder: true,
+      dl: true,
+      hide: true,
     },
 
     // roof
     {
-      pos: [0, -500, 0, 320, 20, 320],
-      col: [120, 120, 120],
+      pos: [0, -500, 55, 320, 20, 210],
+      col: [150, 150, 150],
       collide: true,
     },
-    // {
-    //   pos: [50, -500, -100, 200, 20, 100],
-    //   col: [130, 130, 130],
-    //   collide: true,
-    // },
+    {
+      pos: [55, -500, -105, 210, 20, 110],
+      col: [150, 150, 150],
+      collide: true,
+    },
+
+    // rooftop exit
+    {
+      pos: [-100, -500, -152.5, 120, 150, 15],
+      col: [145, 145, 145],
+      collide: true
+    },
+    {
+      pos: [-155, -500, -100, 10, 150, 120],
+      col: [145, 145, 145],
+      collide: true
+    },
+    {
+      pos: [-45, -500, -100, 15, 150, 120],
+      col: [145, 145, 145],
+      collide: true
+    },
+    {
+      pos: [-98.5, -640, -100, 123, 15, 120],
+      col: [145, 145, 145],
+      collide: true
+    },
+    {
+      pos: [-98.5, -505, -100, 123, 15, 120],
+      ladder: true,
+      dl: true,
+      hide: true,
+    },
 
     // walls
     {
@@ -329,6 +364,20 @@ mdlRef.goober = {
 map = {
   objs: [
     {
+      custom: {
+        name: 'aroom',
+        obj: [
+          {
+            pos: [0, 22, 0, 1000, 20, 1000],
+            col: [120],
+            stk: [2, 0],
+            collide: true,
+          }
+        ]
+      },
+      pos: [100000, -100000, 100000]
+    },
+    {
       name: 'goober'
     },
     {
@@ -375,6 +424,15 @@ map = {
     {
       name: 'building',
       pos: [-1000, 0, 0]
+    },
+    {
+      name: 'building',
+      pos: [1000, 0, 1000],
+      rh: deg180,
+      metadata: {
+        buyable: true,
+        cost: 200,
+      }
     }
   ]
 };

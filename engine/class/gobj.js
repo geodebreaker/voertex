@@ -5,14 +5,17 @@ class Gobj {
       this.mdlname = mdl.name;
       this.mdl = cloneObj(mdlRef[mdl.name]);
     } else if (mdl.custom) {
-      this.mdlname = '[CUSTOM]';
+      this.mdlname = mdl.custom.name || '[CUSTOM]';
       this.mdl = mdl.custom;
     }
     this.obj = this.mdl.obj;
     delete this.mdl.obj;
     if (mdl.metadata) {
       let meta = this.obj.find(x => x.meta);
-      if (!meta) this.obj.unshift({meta: true, skip: true});
+      if (!meta) {
+        this.obj.unshift({ meta: true, skip: true });
+        meta = this.obj.find(x => x.meta);
+      }
       meta.data = mdl.metadata;
     }
     this.obj = this.obj.map((x, i) => {
@@ -52,7 +55,7 @@ function createWorld() {
   world.objs = {};
   map.objs.forEach((x, i) => {
     new Gobj(x, ':o:' + i);
-  })
+  });
 }
 
 let mdlRef = {
@@ -100,15 +103,30 @@ function domapUD(x) {
     case 'del':
       deleteObj(x[1], true);
       break;
+    case 'event':
+      callEvent(x[1], x[2], true);
+      break;
   }
 }
 
-function createObj(mdl, id=nid(), x=false) {
+function createObj(mdl, id = nid(), x = false) {
   if (!x) mapUD.push(['new', mdl, id]);
   return new Gobj(mdl, id);
 }
 
 function deleteObj(pid, x) {
-  if (!x) mapUD.push(['del', pid]); 
+  if (!x) mapUD.push(['del', pid]);
   delete world.objs[pid];
+}
+
+let eventListen = {};
+
+function callEvent(name, args, x) {
+  console.log(name, x, args);
+  if (!x) mapUD.push(['event', name, args]);
+  if (eventListen[name]) eventListen[name].forEach(x => x(...args));
+}
+
+function addEvent(name, fn) {
+  eventListen[name] = eventListen[name] ? [...eventListen[name], fn] : [fn];
 }
