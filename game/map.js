@@ -239,6 +239,11 @@ mdlRef.building = {
       dl: true,
       hide: true,
     },
+    {
+      pos: [-150, -250, 0, 5, 100, 100],
+      tex: "yummers",
+      rot: [0, -deg90, 0]
+    },
 
     // walls
     {

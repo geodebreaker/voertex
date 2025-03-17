@@ -90,6 +90,7 @@ function drawObj(x, y, m) {
 				x.wrap[1]
 			]);
 		} else {
+			// if (textures[x.tex].gifProperties)
 			texture(textures[x.tex]);
 		}
 	} else {
@@ -102,6 +103,11 @@ function drawObj(x, y, m) {
 		noStroke();
 	}
 	if (x.pos[4]) translate(0, -x.pos[4] / 2, 0);
+	if (x.rot) {
+		rotateY(x.rot[0] || 0);
+		rotateX(x.rot[1] || 0);
+		rotateZ(x.rot[2] || 0);
+	}
 	box(...x.pos.slice(3, 6));
 	pop();
 }
