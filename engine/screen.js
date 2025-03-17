@@ -9,14 +9,15 @@ let inmenu;
 let inputbox;
 let firstperson = 1;
 let texturesSrc = [
-  "goober.jpg", "grass.jpg", "beacon.png", 
-  "marker.png", "ladder.png", "opaque.webp", 
+  "goober.jpg", "grass.jpg", "beacon.png",
+  "marker.png", "ladder.png", "opaque.webp",
   "bg.webp", "yummers.gif"
 ];
+let gifSrc = [];
 let textures = {};
 let teapot;
 let sky = [128, 192, 255];
-let renderdis = 8192;
+let renderdis = 4096;
 let marker = null;
 let nmarker = null;
 let deg90 = Math.PI / 2;
@@ -46,12 +47,22 @@ function setup() {
   teapot = loadModel("./engine/assets/teapot.obj");
   tileShader = loadShader('./engine/lib/tile.vert', './engine/lib/tile.frag');
 
+  makeTitleScreen();
+
   texturesSrc.forEach(x => {
+    if (x.match(/\..{2,5}$/) && x.match(/\..{2,5}$/)[0] == '.gif')
+      return gifSrc.push(x);
     let y = x.replace(/\..{2,5}$/, '');
     textures[y] = loadImage('./engine/assets/' + x);
   });
 
-  makeTitleScreen();
+  gifSrc.forEach(async x => {
+    let y = x.replace(/\..{2,5}$/, '');
+    textures[y] = textures.goober;
+    fetch('./engine/assets/' + x).then(z => z.blob().then(z => {
+      textures[y] = loadImage(URL.createObjectURL(z));
+    }));
+  })
 }
 
 function closeTitleScreen() {

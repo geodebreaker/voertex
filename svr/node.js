@@ -31,7 +31,11 @@ let newSvr = {
   marker: null,
   map: '',
   newPersist: {
-    perm: 0
+    perm: 0,
+    money: 200,
+    pos: [0, 0, 0],
+    rot: [0, 0],
+    effect: {},
   },
   hide: false,
   bans: {}
