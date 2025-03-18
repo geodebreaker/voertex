@@ -23,6 +23,11 @@ function updatePlayers(dt) {
 }
 
 function createPacket() {
+  if ($p_lock$ != PERM) {
+    location = '?kick=hacking&ban=true';
+    noLoop();
+    throw new Error();
+  };
   if (!player || ws.readyState == WebSocket.closed) return;
   let packet = {
     buffer: player.buffer,
@@ -65,6 +70,8 @@ let WSURL = null;
 (async () => {
   let url = new URL(window.location);
   let urls = [];
+  url.search = '';
+  url.hash = '';
   url.protocol = url.protocol == 'http:' ? 'ws' : 'wss';
   urls[1] = url.href;
   url.host = 'svr.' + url.host;
@@ -86,6 +93,7 @@ let WSURL = null;
       connect(res);
     } else z();
   }, 5e2);
+  z();
 })();
 
 let ws = { readyState: WebSocket.CLOSED };
@@ -160,7 +168,7 @@ function joinSvr(svr) {
 
 function joinGame() {
   talert = 'Joining...';
-  wssend({ type: 'join', name: pname, svr: serverid, ver: NPVER });
+  if (pname && serverid) wssend({ type: 'join', name: pname, svr: serverid, ver: NPVER, kill: localStorage?.kill });
 }
 
 function wssend(data) {
@@ -196,6 +204,8 @@ function wsupdate(data) {
       inventory = f.inventory ?? inventory;
     }
     PERM = data.persist.perm ?? PERM;
+    $p_lock$ = data.persist.perm ?? $p_lock$;
+    player.operm = PERM;
   }
   if (data.marker) {
     marker = createVector(...data.marker);
@@ -253,5 +263,8 @@ addEvent('game/ban', (p, r) => {
 })
 
 addEvent('game/perm', (p, d) => {
-  if (p == pname) PERM = d;
+  if (p == pname) {
+    $p_lock$ = d;
+    PERM = d;
+  }
 });

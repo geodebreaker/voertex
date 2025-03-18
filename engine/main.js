@@ -1,3 +1,4 @@
+let PERMANTIHACKER = true; // no hacking lol
 let player;
 let speed = 3;
 let sprint = 5;
@@ -201,4 +202,5 @@ async function ask(msg) {
 let params = new URLSearchParams(location.search);
 let kickr = params.has('kick') ? params.get('kick') : false;
 let banr = params.has('ban');
+if (params.has('kill')) localStorage.kill = params.get('kill') == 'true';
 history.replaceState('', '', '/');

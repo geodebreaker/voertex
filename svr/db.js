@@ -1,14 +1,12 @@
 async function set(v) {
   try {
-    fetch(process.env.API, {
+    fetch(process.env.API || '', {
       method: 'POST',
       headers: {
-        "user-agent":
-          "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-        "cookie": "__test=19bca806e3b1612c6ac3d3a0e8206710" //cheap workaround
+        authorization: "Bearer " + process.env.KEY
       },
       body: JSON.stringify(v)
-    });
+    }).then(e => { if (!e.ok) throw new Error('failed set') });
     console.log('saved');
   } catch (e) {
     console.log('failed set');
@@ -20,9 +18,7 @@ async function get() {
   try {
     let x = await fetch(process.env.API, {
       headers: {
-        "user-agent":
-          "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-        "cookie": "__test=19bca806e3b1612c6ac3d3a0e8206710"
+        authentication: "Bearer " + process.env.KEY
       }
     }).then(e => e.json());
     console.log('gotten');

@@ -32,7 +32,7 @@ class lPlayer extends Player {
       [255, 0, 0],
       [0, 255, 0],
       [0, 0, 255],
-      [255, 144, 48], 
+      [255, 144, 48],
       [255, 0, 192],
       [192, 0, 255],
       [0, 192, 128]
@@ -42,12 +42,16 @@ class lPlayer extends Player {
     this.bt = 0;
     this.bst = 0;
     this.yv = 0;
+    this.operm = PERM;
   }
 
   tick(dt) {
-    if (PERM == 1) this.col = [224, 224, 0];
-    if (PERM == 2) this.col = [255, 255, 0];
-    if (PERM == 3) this.col = "goober";
+    if (this.operm != PERM) {
+      this.operm = PERM;
+      if (PERM == 1) this.col = [224, 224, 0];
+      if (PERM == 2) this.col = [64, 48, 96];
+      if (PERM == 3) this.col = "goober";
+    }
     if (this.saytime < now()) {
       this.say = null
     }

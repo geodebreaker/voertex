@@ -3,7 +3,8 @@ const static = require("node-static");
 const WebSocket = require("ws");
 const fs = require("fs");
 const NPVER = "0.0";
-process.env.API = process.argv[3] || process.env.API;
+process.env.API = process.argv[3] || process.env.API || '';
+process.env.KEY = process.argv[4] || process.env.KEY || '';
 let db;
 try {
   db = require('./db.js');
@@ -68,9 +69,20 @@ function createSvr(name, ns = {}) {
   } else {
     createSvr('main');
     createSvr('uncensored');
-    createSvr('sandbox');
+    createSvr('sandbox', {
+      newPersist: {
+        perm: 1,
+        money: 0,
+        pos: [0, 0, 0],
+        rot: [0, 0],
+        effect: {
+          speedCheatsOn: true,
+        },
+      },
+    });
     createSvr('pop', { persist: { pop: { money: 1000, perm: 3 }, googer: { perm: 3 } } });
     createSvr('hidden', { hide: true });
+    db.set({ svrs, users });
   }
 })();
 
@@ -79,6 +91,7 @@ wss.on("connection", ws => {
   ws.mapUD = [];
   ws.chat = [];
   ws.svr = null;
+  ws.perm = null;
 
   send(ws, {
     type: "servers", servers: Object.entries(svrs).filter(x => !x[1].hide).map(x =>
@@ -102,7 +115,7 @@ wss.on("connection", ws => {
             });
           }
           if (p.mapUD) {
-            p.mapUD.forEach(x => {
+            p.mapUD.forEach((x, i) => {
               if (x[0] == 'calc') {
                 let y = svrs[ws.svr].mapUD.find(y => y[0] == 'calc' && y[1] == x[1] && y[2] == y[2]);
                 if (y) y[3] = x[3];
@@ -115,8 +128,24 @@ wss.on("connection", ws => {
                 if (len == svrs[ws.svr].mapUD.length)
                   svrs[ws.svr].mapUD.push(x);
               } else if (x[0] == 'event') {
-                if (x[1] == 'game/ban')
-                  svrs[ws.svr].bans[x[2][0]] = x[2][1] || null;
+                if (x[1] == 'game/ban') {
+                  if (svrs[ws.svr].bans[x[2][0]]) {
+                    return svrs[ws.svr].bans[x[2][0]] = false;
+                  } else svrs[ws.svr].bans[x[2][0]] = x[2][1] || null;
+                }
+                if (x[1] == 'game/ban' || x[1] == 'game/kick') {
+                  wss.clients.forEach(y => {
+                    if (y.name == x[2][0]) {
+                      if (y.perm > ws.perm) return delete p.mapUD[i];
+                      send(y, {type: 'update', mapUD: [x], packets: {}});
+                      y.close();
+                    }
+                  })
+                }
+                if (x[1] == 'game/perm') {
+                  svrs[ws.svr].persist[x[2][0]] = svrs[ws.svr].persist[x[2][0]] || {};
+                  svrs[ws.svr].persist[x[2][0]].perm = x[2][1];
+                }
               } else {
                 svrs[ws.svr].mapUD.push(x);
               }
@@ -128,6 +157,7 @@ wss.on("connection", ws => {
             delete p.mapUD;
           }
           if (p.persist) {
+            ws.perm = p.persist.perm;
             svrs[ws.svr].persist[ws.name] = p.persist;
             delete p.persist;
           }
@@ -144,8 +174,17 @@ wss.on("connection", ws => {
           return ws.close();
         }
         if (userOn(msg.name)) {
-          send(ws, { type: 'fail', error: 'name taken' });
-          return ws.close();
+          if (msg.kill) {
+            wss.clients.forEach(x => {
+              if (x.name == msg.name) {
+                send(x, {type: 'update', mapUD: [['event', 'game/kick', [x.name, 'You took that users name!']]], packets: {}});
+                x.close();
+              }
+            });
+          } else {
+            send(ws, { type: 'fail', error: 'name taken' });
+            return ws.close();
+          }
         }
         if (!svrs[msg.svr]) {
           send(ws, { type: 'fail', error: 'room does not exist' });

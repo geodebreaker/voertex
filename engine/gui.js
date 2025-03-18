@@ -57,8 +57,7 @@ function drawHUD() {
   translate(width - 15, height - 15);
   textAlign(RIGHT, BOTTOM);
   textSize(12);
-  txt =
-    (minimenu ? Object.entries(mmcon[minimenu]).map(x => `${x[1][0]} [${x[0]}]`).join('\n') :
+  txt = (minimenu ? Object.entries(mmcon[minimenu]).map(x => `${x[1][0]} [${x[0]}]`).join('\n') :
       Object.entries(inventory).map(x => `${x[1].type}${x[1].amount ? ' x' + x[1].amount : ''} [${x[0]}]\n`) +
       'MiniMenu [Q]' + (PERM > 0 ? '\nCommand [/]' : ''))
     + '\n$' + money;
@@ -143,7 +142,7 @@ function displaySvrs(svrs) {
   if (kickr !== false) {
     svrsto = svrs;
     tsin.svrs.elt.innerHTML =
-      `<span class="listing kh">You where ${ban ? 'banned' : 'kicked'}</span>` +
+      `<span class="listing kh">You where ${banr ? 'banned' : 'kicked'}</span>` +
       (kickr ? `<span class="listing kr">${kickr}</span>` : '') +
       `<span class="listing" onclick="kickr=false;displaySvrs(svrsto)">OK</span>`;
   } else tsin.svrs.elt.innerHTML = svrs.map(x =>
