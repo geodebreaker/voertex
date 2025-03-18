@@ -18,6 +18,7 @@
   "homepage": "https://github.com/geodebreaker/voertex#readme",
   "description": "",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "node-static": "^0.7.11",
     "ws": "^8.18.1"
   }

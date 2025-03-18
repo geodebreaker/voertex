@@ -50,7 +50,6 @@ let cmds = {
     callEvent('cmd/ex', [from, 'goto', to])
   },
   freeze(who) {
-    console.log(PERM)
     if (!this.FE && PERM < 2) return "NPERM";
     if (!who || this.FE) frozen = !frozen;
     else callEvent('cmd/ex', [who, 'freeze']);
@@ -62,13 +61,13 @@ let cmds = {
   aroom(who) {
     if (!this.FE && PERM < 2) return "NPERM";
     if (!this.FE && who && who !== true) callEvent('cmd/ex', [who, 'aroom']);
-    else if (who !== true) cmd('freeze');
+    else if (who !== true) frozen = !frozen;
     inARoom = !inARoom;
     if (inARoom) {
       oldPos.push([player.pos.x, player.pos.y, player.pos.z]);
       player.pos.set(100000, -100000, 100000);
     } else {
-      cmd('return');
+      player.pos = createVector(...oldPos.pop())
     }
   },
   kick(who, reason) {

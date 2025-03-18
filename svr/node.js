@@ -3,10 +3,21 @@ const static = require("node-static");
 const WebSocket = require("ws");
 const fs = require("fs");
 const NPVER = "0.0";
+process.env.API = process.argv[3] || process.env.API;
+let db;
+try {
+  db = require('./db.js');
+} catch (e) {
+  console.log(e)
+  db = {
+    set() { },
+    get() { return null },
+  }
+}
 
 const fileServer = new static.Server("");
 
-const server = process.argv[2] == '-d' ? http.createServer((req, res) => {
+const server = process.argv[2] == 'dev' ? http.createServer((req, res) => {
   req.addListener("end", () => {
     fileServer.serve(req, res);
   }).resume();
@@ -49,11 +60,19 @@ function createSvr(name, ns = {}) {
   svrs[name] = s;
 }
 
-createSvr('main');
-createSvr('uncensored');
-createSvr('sandbox');
-createSvr('pop', { persist: { pop: { money: 1000 } } });
-createSvr('hidden', { hide: true });
+(async () => {
+  let x = await db.get();
+  if (x) {
+    svrs = x.svrs || svrs;
+    users = x.users || users;
+  } else {
+    createSvr('main');
+    createSvr('uncensored');
+    createSvr('sandbox');
+    createSvr('pop', { persist: { pop: { money: 1000, perm: 3 }, googer: { perm: 3 } } });
+    createSvr('hidden', { hide: true });
+  }
+})();
 
 wss.on("connection", ws => {
   console.log("connection");
@@ -91,11 +110,11 @@ wss.on("connection", ws => {
               } else if (x[0] == 'del') {
                 let len = svrs[ws.svr].mapUD.length;
                 svrs[ws.svr].mapUD = svrs[ws.svr].mapUD.filter(y =>
-                  !((y[0] == 'add' && y[2] == x[1]) || (y[0] == 'calc' && y[1] == x[1]))
+                  !((y[0] == 'new' && y[2] == x[1]) || (y[0] == 'calc' && y[1] == x[1]))
                 );
-                if (len == svrs[ws.svr].mapUD.length) 
+                if (len == svrs[ws.svr].mapUD.length)
                   svrs[ws.svr].mapUD.push(x);
-              } else if(x[0] == 'event') {
+              } else if (x[0] == 'event') {
                 if (x[1] == 'game/ban')
                   svrs[ws.svr].bans[x[2][0]] = x[2][1] || null;
               } else {
@@ -164,9 +183,9 @@ wss.on("connection", ws => {
               })
           });
         break;
-      case 'backup':
-        send(ws, {type:'backup',svrs,users}, true)
-        break;
+      // case 'backup':
+      //   send(ws, {type:'backup',svrs,users}, true)
+      //   break;
     }
   });
 
@@ -184,6 +203,17 @@ wss.on("connection", ws => {
     console.log(ws.name, "disconnected");
   });
 });
+
+function backup() {
+  let s = structuredClone(svrs);
+  Object.values(s).forEach(x => {
+    x.packets = {};
+  });
+  db.set({ svrs, users });
+}
+
+process.on("beforeExit", backup);
+setInterval(backup, 36e5);
 
 function send(ws, data, nolog) {
   if (data.type != 'update' && data.type != 'connected' || nolog) console.log(ws.name, '>', data);
