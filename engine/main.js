@@ -31,6 +31,9 @@ let ladderSpeed = 4;
 let onladder = false;
 let floor = "grass";
 let frozen = false;
+let inventory = {
+  1: { type: "goog", data: {}, amount: 2 }
+};
 
 let minimenu = null;
 let mmcon = {

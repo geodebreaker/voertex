@@ -39,6 +39,7 @@ function createPacket() {
       },
       rot: [camYaw, camPitch],
       perm: PERM,
+      inventory
     },
     marker: nmarker ? [nmarker.x, nmarker.y] : undefined,
     chat: chatToSend
@@ -192,6 +193,7 @@ function wsupdate(data) {
       speedCheats(speedCheatsOn);
       oldPos = f.oldPos ?? oldPos;
       inARoom = f.inARoom ?? inARoom;
+      inventory = f.inventory ?? inventory;
     }
     PERM = data.persist.perm ?? PERM;
   }
