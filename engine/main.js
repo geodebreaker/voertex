@@ -1,4 +1,6 @@
 let PERMANTIHACKER = true; // no hacking lol
+const fn = x => Function('...args', x);
+const $ = x => document.querySelector(x);
 let player;
 let speed = 3;
 let sprint = 5;
@@ -33,8 +35,13 @@ let onladder = false;
 let floor = "grass";
 let frozen = false;
 let inventory = {
-  1: { type: "goog", data: {}, amount: 2 }
+  0: { type: "(empty)", amount: 1 },
+  // 1: { type: "tv", data: {}, amount: 2 },
 };
+let holding = 0;
+let items = {
+  "(empty)": {},
+}
 
 let minimenu = null;
 let mmcon = {
@@ -119,7 +126,7 @@ function draw() {
 
 function keyPressed() {
   keys[key.toLowerCase()] = true;
-  if (minimenu && mmcon[minimenu][key.toUpperCase()]) {
+  if (!inmenu && minimenu && mmcon[minimenu][key.toUpperCase()]) {
     let mm = minimenu;
     minimenu = null;
     mmcon[mm][key.toUpperCase()][1]();
@@ -127,15 +134,29 @@ function keyPressed() {
   }
   if (!inmenu && interact && interact.keys.includes(key.toLowerCase()))
     return interact.obj.interact[key.toLowerCase()].apply(interact.obj, []);
-  if ((!inmenu || minimenu) && (key == 'q' || key == 'Q'))
+  if (!inmenu && (key == 'q' || key == 'Q'))
     minimenu = minimenu ? null : 'main';
-  if ((PERM > 0) && (!inmenu || minimenu) && (key == '/' || key == '?')) {
+  if ((PERM > 0) && !inmenu && (key == '/' || key == '?')) {
     minimenu = minimenu ? null : 'cmd';
     cmdEx = false;
     mmcon.cmd.P[0] = 'Execute';
   }
+  if (!inmenu && !minimenu) {
+    if (inventory[holding] && items[inventory[holding].type]?.interact?.[key])
+      runitem(key);
+    Object.keys(inventory).forEach(x => {
+      if (key == x || keymap[key] == x) {
+        holding = x;
+      }
+    });
+  }
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
+}
+
+function mousePressed() {
+  if (inventory[holding] && items[inventory[holding].type]?.interact?.[mouseButton])
+    runitem(mouseButton);
 }
 
 function keyReleased() {
@@ -189,7 +210,6 @@ function registerMM(mm, alpha, m = 'main') {
   if (i < alpha.length) mmcon[m][alpha[i]] = mm;
   else {
     console.log('couldnt register mm', mm[0], m);
-    // alert('ERROR #CRMM (' + btoa(mm[0] + ',' + m).replace('=', '') + ')');
   }
 }
 
@@ -204,3 +224,41 @@ let kickr = params.has('kick') ? params.get('kick') : false;
 let banr = params.has('ban');
 if (params.has('kill')) localStorage.kill = params.get('kill') == 'true';
 history.replaceState('', '', '/');
+
+let keymap = {
+  "!": 1,
+  "@": 2,
+  "#": 3,
+  "$": 4,
+  "%": 5,
+  "^": 6,
+  "&": 7,
+  "*": 9,
+  "(": 9,
+  ")": 0
+};
+
+function runitem(k) {
+  let i = inventory[holding];
+  let f = items[i.type].interact[k];
+  let x = {
+    ...i,
+    remove() {
+      delete inventory[holding];
+      holding = 0;
+    }
+  };
+  f.apply(x);
+  Object.entries(x).filter(y => ![
+    'remove'
+  ].includes(y[0])).forEach(y => i[y[0]] = y[1]);
+}
+
+function html(a, ...c) {
+  let d = document.createElement('x');
+  let b = c.map(x => {
+    d.innerText = x;
+    return d.innerHTML;
+  });
+  return a.reduce((x, y, i) => x + y + (b[i] || ''), '');
+}

@@ -58,8 +58,9 @@ function drawHUD() {
   textAlign(RIGHT, BOTTOM);
   textSize(12);
   txt = (minimenu ? Object.entries(mmcon[minimenu]).map(x => `${x[1][0]} [${x[0]}]`).join('\n') :
-      Object.entries(inventory).map(x => `${x[1].type}${x[1].amount ? ' x' + x[1].amount : ''} [${x[0]}]\n`) +
-      'MiniMenu [Q]' + (PERM > 0 ? '\nCommand [/]' : ''))
+    Object.entries(inventory).map(x => `${x[1].type}${x[1].amount > 1 ? ' x' + x[1].amount : ''} ` +
+      (x[0] == holding ? `{${x[0]}}\n` : `[${x[0]}]\n`)).join('') +
+    'MiniMenu [Q]' + (PERM > 0 ? '\nCommand [/]' : ''))
     + '\n$' + money;
   twidth = textWidth(txt);
   theight = textLeading() * (txt.split('\n').length);
@@ -75,7 +76,7 @@ function drawHUD() {
   stroke(0);
   strokeWeight(3);
   circle(0, 0, 10);
-  if (interact) {
+  if (interact && interact.text) {
     translate(0, 15);
     textAlign(CENTER, TOP);
     textSize(18);
@@ -155,7 +156,9 @@ function makeHUD() {
   chatdiv.size(270, 130);
 }
 
-function chatMsg(name, data) {
-  chatdiv.elt.innerText += name + (data ? ': ' + data : '') + '\n';
+function chatMsg(a, b = null, c = null) {
+  chatdiv.elt.innerHTML +=
+    c === null && b !== null ? html`<span class="p">${a}:</span> ${b}<br>` :
+      html`<span class="t">${a ? a + ' ' : ''}</span> <span class="p">${b ? b + ' ' : ''}</span> <span class="t">${c || ''}</span><br>`;
   chatdiv.elt.scrollTop = chatdiv.elt.scrollHeight;
 }

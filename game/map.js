@@ -57,6 +57,55 @@ mdlRef.door = {
   ]
 }
 
+mdlRef.television = {
+  obj: [
+    {
+      pos: [0, 0, 0, 0, 100, 100],
+      tex: "yummers",
+      rot: [0, -deg90, 0],
+      data: {}
+    },
+    {
+      meta: true,
+      skip: true,
+      data: {
+        pickup: false
+      },
+      calc() {
+        world.objs[this.pid].obj[0].interact = this.data.pickup ? 
+          {
+            text: '',
+            m() {
+              inventory[1] ? inventory[1].amount++ : inventory[1] = {
+                type: "tv",
+                amount: 1,
+              }
+              deleteObj(this.pid);
+            },
+            keys: ['m']
+          } :
+          null
+      }
+    },
+  ],
+}
+
+items.tv = {
+  interact: {
+    left() {
+      createObj({
+        name: "television",
+        pos: [player.pos.x, player.pos.y, player.pos.z],
+        metadata: { pickup: true },
+        rh: -camYaw + deg90
+      });
+      this.amount--;
+      if (this.amount < 1)
+        this.remove();
+    }
+  }
+}
+
 mdlRef.house = {
   obj: [
     // gobber
@@ -240,9 +289,8 @@ mdlRef.building = {
       hide: true,
     },
     {
-      pos: [-150, -250, 0, 5, 100, 100],
-      tex: "yummers",
-      rot: [0, -deg90, 0]
+      pos: [-149, -250, 0, 0, 100, 100],
+      preset: "television"
     },
 
     // walls

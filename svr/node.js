@@ -28,27 +28,30 @@ const wss = new WebSocket.Server(server ? { server } : { port: process.env.PORT 
 
 let users = {};
 
+let newPersist = {
+  perm: 0,
+  money: 200,
+  pos: [0, 0, 0],
+  rot: [0, 0],
+  effect: {},
+  inventory: {
+    0: { type: '(empty)', amount: 1 },
+    1: { type: "tv", amount: 2 },
+  }
+};
+
 let newSvr = {
   packets: {},
   mapUD: [],
   persist: {
     googer: {
-      money: 200,
-      pos: [0, 0, 0],
-      rot: [0, 0],
-      effect: {},
+      ...newPersist,
       perm: 3,
     }
   },
   marker: null,
   map: '',
-  newPersist: {
-    perm: 0,
-    money: 200,
-    pos: [0, 0, 0],
-    rot: [0, 0],
-    effect: {},
-  },
+  newPersist,
   hide: false,
   bans: {}
 };
@@ -71,10 +74,9 @@ function createSvr(name, ns = {}) {
     createSvr('uncensored');
     createSvr('sandbox', {
       newPersist: {
+        ...newPersist,
         perm: 1,
         money: 0,
-        pos: [0, 0, 0],
-        rot: [0, 0],
         effect: {
           speedCheatsOn: true,
         },
