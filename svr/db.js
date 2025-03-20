@@ -1,11 +1,11 @@
-async function set(v) {
+async function set(v, s) {
   try {
     fetch(process.env.API || '', {
       method: 'POST',
       headers: {
         authorization: "Bearer " + process.env.KEY
       },
-      body: JSON.stringify(v)
+      body: s ? v : JSON.stringify(v)
     }).then(e => { if (!e.ok) throw new Error('failed set') });
     console.log('saved');
   } catch (e) {

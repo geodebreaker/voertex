@@ -149,6 +149,9 @@ function connect(iws) {
       case 'servers':
         displaySvrs(x.servers);
         break;
+      case 'reset':
+        location = '?room=' + encodeURI(serverid);
+        break;
     }
   };
   if (iws) console.log('connected');
@@ -224,6 +227,7 @@ function wsupdate(data) {
 
 function testUrl(url) {
   return new Promise(y => {
+    console.log('url');
     let ws = new WebSocket(url);
     let hr = false;
     ws.onmessage = x => {
@@ -252,6 +256,7 @@ function testUrl(url) {
       hr = true;
       ws.close();
       y(false);
+      console.log(url)
     }, 3e3);
   });
 }

@@ -61,11 +61,15 @@ let svrs = {};
 function createSvr(name, ns = {}) {
   let s = structuredClone(newSvr);
   Object.entries(ns).forEach(x => s[x[0]] = x[1]);
-  svrs[name] = s;
+  if (!svrs[name])
+    svrs[name] = s;
+  svrs[name].ns = structuredClone(s);
+  console.log(svrs);
 }
 
 (async () => {
   let x = await db.get();
+  console.log(x)
   if (x) {
     svrs = x.svrs || svrs;
     users = x.users || users;
@@ -84,7 +88,7 @@ function createSvr(name, ns = {}) {
     });
     createSvr('pop', { persist: { pop: { money: 1000, perm: 3 }, googer: { perm: 3 } } });
     createSvr('hidden', { hide: true });
-    db.set({ svrs, users });
+    backup();
   }
 })();
 
@@ -139,7 +143,7 @@ wss.on("connection", ws => {
                   wss.clients.forEach(y => {
                     if (y.name == x[2][0]) {
                       if (y.perm > ws.perm) return delete p.mapUD[i];
-                      send(y, {type: 'update', mapUD: [x], packets: {}});
+                      send(y, { type: 'update', mapUD: [x], packets: {} });
                       y.close();
                     }
                   })
@@ -179,7 +183,7 @@ wss.on("connection", ws => {
           if (msg.kill) {
             wss.clients.forEach(x => {
               if (x.name == msg.name) {
-                send(x, {type: 'update', mapUD: [['event', 'game/kick', [x.name, 'You took that users name!']]], packets: {}});
+                send(x, { type: 'update', mapUD: [['event', 'game/kick', [x.name, 'You took that users name!']]], packets: {} });
                 x.close();
               }
             });
@@ -227,6 +231,19 @@ wss.on("connection", ws => {
       // case 'backup':
       //   send(ws, {type:'backup',svrs,users}, true)
       //   break;
+      case 'reset':
+        wss.clients.forEach(x => {
+          if (x.svr == ws.svr) {
+            send(x, {
+              type: 'reset',
+            });
+            ws.close();
+          }
+        });
+        let s = svrs[ws.svr].ns;
+        svrs[ws.svr] = null;
+        createSvr(ws.svr, s);
+        break;
     }
   });
 
@@ -250,7 +267,9 @@ function backup() {
   Object.values(s).forEach(x => {
     x.packets = {};
   });
-  db.set({ svrs, users });
+  db.set(JSON.stringify({ svrs: s, users }, (_, v) =>
+    typeof v === "number" ? Math.floor(v) : v
+  ), true);
 }
 
 process.on("beforeExit", backup);

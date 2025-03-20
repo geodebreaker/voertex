@@ -89,6 +89,10 @@ let cmds = {
     if (PERM < 3) return "NPERM";
     if (who == pname) return;
     callEvent('game/perm', [who, Math.max(Math.min(parseInt(pd) || 0, 2), 0)]);
+  },
+  reset() {
+    if (PERM < 3) return "NPERM";
+    wssend({ type: 'reset' });
   }
 };
 
@@ -103,7 +107,7 @@ function cmd(name, ...args) {
 
 function cmdb(name, ...args) {
   if (cmdEx) {
-    if (!['gpos','goto','tp','bring','speed','noclip','return'].includes(name)) return alert('Not allowed');
+    if (!['gpos','goto','tp','bring','speed','noclip','return'].includes(name)) return alert('Not allowed.');
     callEvent('cmd/ex', [cmdEx, name, ...args]);
   } else {
     cmd(name, ...args);
@@ -143,6 +147,7 @@ registerMM(['Perms', async () => cmdb('perm', await ask('Who?'), await ask('0: u
 registerMM(['Give Money', async () => cmdb('givemoney', await ask('Amount?'), await ask('To who?'))], 'X', 'cmd/um');
 registerMM(['Admin Room', async () => cmdb('aroom', await ask('Who to bring to admin room?') || true)], 'Z', 'cmd/um');
 registerMM(['Freeze', async () => cmdb('freeze', await ask('Freeze who?'))], 'C', 'cmd/um');
+registerMM(['Reset', () => cmd('reset')], '|', 'cmd/um');
 
 // speedcheats
 
