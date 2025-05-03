@@ -1,4 +1,5 @@
 async function set(v, s) {
+  if (!process.env.API) return;
   try {
     fetch(process.env.API || '', {
       method: 'POST',
@@ -15,6 +16,7 @@ async function set(v, s) {
 }
 
 async function get() {
+  if (!process.env.API) return;
   try {
     let x = await fetch(process.env.API, {
       headers: {

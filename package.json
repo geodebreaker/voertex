@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node svr/node.js",
-    "test": "node svr/node.js -d"
+    "test": "node svr/node.js dev"
   },
   "repository": {
     "type": "git",

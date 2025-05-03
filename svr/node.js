@@ -64,12 +64,10 @@ function createSvr(name, ns = {}) {
   if (!svrs[name])
     svrs[name] = s;
   svrs[name].ns = structuredClone(s);
-  console.log(svrs);
 }
 
 (async () => {
   let x = await db.get();
-  console.log(x)
   if (x) {
     svrs = x.svrs || svrs;
     users = x.users || users;
