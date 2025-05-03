@@ -76,11 +76,7 @@ mdlRef.television = {
           {
             text: '',
             m() {
-              inventory[1] ? inventory[1].amount++ : inventory[1] = {
-                type: "tv",
-                amount: 1,
-              }
-              deleteObj(this.pid);
+              if (pickup('tv')) deleteObj(this.pid);
             },
             keys: ['m']
           } :
@@ -486,6 +482,10 @@ map = {
         buyable: true,
         cost: 200,
       }
+    },
+    {
+      name: 'fsdispense',
+      pos: [2500, 0, -2500]
     }
   ]
 };

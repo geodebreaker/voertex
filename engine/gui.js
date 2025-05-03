@@ -76,17 +76,19 @@ function drawHUD() {
   stroke(0);
   strokeWeight(3);
   circle(0, 0, 10);
-  if (interact && interact.text) {
+  if ((interact && interact.text) ||
+    (items[inventory[holding].type].interact && items[inventory[holding].type].interact.text)) {
+    let txt = interact?.text || items[inventory[holding].type].interact.text;
     translate(0, 15);
     textAlign(CENTER, TOP);
     textSize(18);
-    twidth = textWidth(interact.text);
-    theight = textLeading() * interact.text.split('\n').length;
+    twidth = textWidth(txt);
+    theight = textLeading() * txt.split('\n').length;
     fill(0, 0, 0, 128);
     noStroke();
     rect(-twidth / 2 - 5, -5, twidth + 10, theight + 10);
     fill(255);
-    text(interact.text, 0, 0);
+    text(txt, 0, 0);
   }
   pop();
 }

@@ -54,7 +54,11 @@ function nid() {
 function createWorld() {
   world.objs = {};
   map.objs.forEach((x, i) => {
-    new Gobj(x, ':o:' + i);
+    try {
+      new Gobj(x, ':o:' + i);
+    } catch (e) {
+      console.error(e)
+    }
   });
 }
 
@@ -111,7 +115,11 @@ function domapUD(x) {
 
 function createObj(mdl, id = nid(), x = false) {
   if (!x) mapUD.push(['new', mdl, id]);
-  return new Gobj(mdl, id);
+  try {
+    return new Gobj(mdl, id);
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 function deleteObj(pid, x) {

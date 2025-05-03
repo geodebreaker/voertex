@@ -254,6 +254,19 @@ function runitem(k) {
   ].includes(y[0])).forEach(y => i[y[0]] = y[1]);
 }
 
+function pickup(type, data) {
+  const spots = '123456789';
+  let spot, i = 0;
+  do spot = spots[i++]
+  while (inventory[spot] && inventory[spot].type != type);
+  if (!spot) return false;
+  if (inventory[spot])
+    inventory[spot].amount++;
+  else
+    inventory[spot] = { type, amount: 1 };
+  return true;
+}
+
 function html(a, ...c) {
   let d = document.createElement('x');
   let b = c.map(x => {
