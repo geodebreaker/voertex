@@ -315,7 +315,7 @@ function userOn(u) {
   return !Object.values(svrs).every(x => Object.entries(x.packets).every(y => y[0] != u || y[0].to));
 }
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 if (server) server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

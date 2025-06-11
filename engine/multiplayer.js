@@ -77,21 +77,27 @@ let WSURL = null;
   url.host = 'svr.' + url.host;
   urls[0] = url.href;
   for (let i = 0; i < urls.length; i++) {
-    let res = await testUrl(urls[i]);
-    if (res) {
-      WSURL = urls[i];
-      connect(res);
-      return
-    }
+    try {
+      let res = await testUrl(urls[i]);
+      if (res) {
+        WSURL = urls[i];
+        connect(res);
+        return
+      }
+    } catch (e) { }
   }
   wsfail = 'Could not find server. Please provide server.';
   let z = () => setTimeout(async () => {
-    let url = (location.protocol == 'http:' ? 'ws://' : 'wss://') + prompt('Provide server:');
-    let res = await testUrl(url);
-    if (res) {
-      WSURL = url;
-      connect(res);
-    } else z();
+    try {
+      let url = (location.protocol == 'http:' ? 'ws://' : 'wss://') + prompt('Provide server:');
+      let res = await testUrl(url);
+      if (res) {
+        WSURL = url;
+        connect(res);
+      } else z();
+    } catch (e) {
+      z()
+    }
   }, 5e2);
   z();
 })();
