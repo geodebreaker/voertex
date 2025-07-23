@@ -73,7 +73,9 @@ function setup() {
     fetch('./engine/assets/' + x).then(z => z.blob().then(z => {
       textures[y] = loadImage(URL.createObjectURL(z));
     }));
-  })
+  });
+
+  connect();
 }
 
 function closeTitleScreen() {
