@@ -6,7 +6,7 @@ const fs = require("fs");
 const NPVER = "0.1";
 let db = require('./db.js');
 
-const fileServer = new static.Server("");
+const fileServer = new static.Server("", { 'cache-control': 0 });
 
 const server = http.createServer(async (req, res) => {
   if (req.url == '/ghhook' && req.method == 'POST') {
