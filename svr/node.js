@@ -3,28 +3,17 @@ const static = require("node-static");
 const WebSocket = require("ws");
 const fs = require("fs");
 const NPVER = "0.0";
-process.env.API = process.argv[3] || process.env.API || '';
-process.env.KEY = process.argv[4] || process.env.KEY || '';
-let db;
-try {
-  db = require('./db.js');
-} catch (e) {
-  console.log(e)
-  db = {
-    set() { },
-    get() { return null },
-  }
-}
+let db = require('./db.js');
 
 const fileServer = new static.Server("");
 
-const server = process.argv[2] == 'dev' ? http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   req.addListener("end", () => {
     fileServer.serve(req, res);
   }).resume();
-}) : null;
+});
 
-const wss = new WebSocket.Server(server ? { server } : { port: process.env.PORT });
+const wss = new WebSocket.Server({ server });
 
 let users = {};
 
@@ -104,7 +93,7 @@ wss.on("connection", ws => {
 
   ws.on("message", x => {
     let msg = JSON.parse(x.toString());
-    if (msg.type != 'packet') console.log(ws.name, '<', msg);
+    // if (msg.type != 'packet') console.log(ws.name, '<', msg);
     switch (msg.type) {
       case 'packet':
         if (ws.name) {
@@ -120,35 +109,36 @@ wss.on("connection", ws => {
           }
           if (p.mapUD) {
             p.mapUD.forEach((x, i) => {
+              x[1] = ws.name;
               if (x[0] == 'calc') {
-                let y = svrs[ws.svr].mapUD.find(y => y[0] == 'calc' && y[1] == x[1] && y[2] == y[2]);
-                if (y) y[3] = x[3];
+                let y = svrs[ws.svr].mapUD.find(y => y[0] == 'calc' && y[2] == x[2] && y[3] == x[3]);
+                if (y) y[4] = x[4];
                 else svrs[ws.svr].mapUD.push(x);
               } else if (x[0] == 'del') {
                 let len = svrs[ws.svr].mapUD.length;
                 svrs[ws.svr].mapUD = svrs[ws.svr].mapUD.filter(y =>
-                  !((y[0] == 'new' && y[2] == x[1]) || (y[0] == 'calc' && y[1] == x[1]))
+                  !((y[0] == 'new' && y[3] == x[2]) || (y[0] == 'calc' && y[2] == x[2]))
                 );
                 if (len == svrs[ws.svr].mapUD.length)
                   svrs[ws.svr].mapUD.push(x);
               } else if (x[0] == 'event') {
-                if (x[1] == 'game/ban') {
-                  if (svrs[ws.svr].bans[x[2][0]]) {
-                    return svrs[ws.svr].bans[x[2][0]] = false;
-                  } else svrs[ws.svr].bans[x[2][0]] = x[2][1] || null;
+                if (x[3] == 'game/ban') {
+                  if (svrs[ws.svr].bans[x[3][0]]) {
+                    return svrs[ws.svr].bans[x[3][0]] = false;
+                  } else svrs[ws.svr].bans[x[3][0]] = x[3][1] || null;
                 }
-                if (x[1] == 'game/ban' || x[1] == 'game/kick') {
+                if (x[2] == 'game/ban' || x[2] == 'game/kick') {
                   wss.clients.forEach(y => {
-                    if (y.name == x[2][0]) {
+                    if (y.name == x[3][0]) {
                       if (y.perm > ws.perm) return delete p.mapUD[i];
                       send(y, { type: 'update', mapUD: [x], packets: {} });
                       y.close();
                     }
                   })
                 }
-                if (x[1] == 'game/perm') {
-                  svrs[ws.svr].persist[x[2][0]] = svrs[ws.svr].persist[x[2][0]] || {};
-                  svrs[ws.svr].persist[x[2][0]].perm = x[2][1];
+                if (x[2] == 'game/perm') {
+                  svrs[ws.svr].persist[x[3][0]] = svrs[ws.svr].persist[x[3][0]] || {};
+                  svrs[ws.svr].persist[x[3][0]].perm = x[3][1];
                 }
               } else {
                 svrs[ws.svr].mapUD.push(x);
@@ -170,18 +160,18 @@ wss.on("connection", ws => {
         break;
       case 'join':
         if (parseInt(NPVER.split('.')[0]) > parseInt(msg.ver.split('.')[0])) {
-          send(ws, { type: 'fail', error: 'Ivalid network protocol version. You need a new client.' });
+          send(ws, { type: 'fail', error: 'Invalid network protocol version. You need a new client.' });
           return ws.close();
         }
         if (parseInt(NPVER.split('.')[0]) < parseInt(msg.ver.split('.')[0])) {
-          send(ws, { type: 'fail', error: 'Um, this server needs an update!' });
+          send(ws, { type: 'fail', error: 'This server needs an update!' });
           return ws.close();
         }
         if (userOn(msg.name)) {
           if (msg.kill) {
             wss.clients.forEach(x => {
               if (x.name == msg.name) {
-                send(x, { type: 'update', mapUD: [['event', 'game/kick', [x.name, 'You took that users name!']]], packets: {} });
+                send(x, { type: 'update', mapUD: [['event', '_', 'game/kick', [x.name, 'You took that users name!']]], packets: {} });
                 x.close();
               }
             });
@@ -215,6 +205,7 @@ wss.on("connection", ws => {
               name: ws.name
             })
         });
+        console.log(ws.name, 'joined', ws.svr);
         break;
       case 'run':
         if (/*users[ws.name].admin*/ws.name == 'googer')
@@ -274,7 +265,7 @@ process.on("beforeExit", backup);
 setInterval(backup, 36e5);
 
 function send(ws, data, nolog) {
-  if (data.type != 'update' && data.type != 'connected' || nolog) console.log(ws.name, '>', data);
+  // if (data.type != 'update' && data.type != 'connected' || nolog) console.log(ws.name, '>', data);
   if (ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(data));
   }
@@ -316,7 +307,7 @@ function userOn(u) {
 }
 
 const PORT = process.env.PORT || 8080;
-if (server) server.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 

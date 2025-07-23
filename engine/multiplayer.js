@@ -267,17 +267,17 @@ function testUrl(url) {
   });
 }
 
-addEvent('game/kick', (p, r) => {
+addEvent('game/kick', (u, p, r) => {
   chatMsg('', p, 'was kicked' + (r ? ' because ' + r : ''));
   if (p == pname) location = "?kick=" + (r ? encodeURI(r) : '');
 });
 
-addEvent('game/ban', (p, r) => {
+addEvent('game/ban', (u, p, r) => {
   chatMsg('', p, 'was banned' + (r ? ' because ' + r : ''));
   if (p == pname) location = "?kick=" + (r ? encodeURI(r) : '') + '&ban=true';
 })
 
-addEvent('game/perm', (p, d) => {
+addEvent('game/perm', (u, p, d) => {
   chatMsg('', p, 'was changed to ' + ['user', 'editor', 'admin'][d]);
   if (p == pname) {
     $p_lock$ = d;

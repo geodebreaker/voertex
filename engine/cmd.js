@@ -18,7 +18,7 @@ qm money
 /mc freeze player
 */
 
-addEvent('cmd/ex', (p, x, ...d) => {
+addEvent('cmd/ex', (u, p, x, ...d) => {
   if (p == '*' || pname.startsWith(p)) cmd.apply({ FE: true }, [x, ...d]);
 });
 

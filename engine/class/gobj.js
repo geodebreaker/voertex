@@ -87,7 +87,7 @@ let map = {
 
 function cwrap(fn) {
   return function (x) {
-    if (!x) mapUD.push(['calc', this.pid, this.oid, this.data]);
+    if (!x) mapUD.push(['calc', pname, this.pid, this.oid, this.data]);
     return fn.apply(this);
   }
 }
@@ -96,25 +96,25 @@ function domapUD(x) {
   let type = x[0];
   switch (type) {
     case 'calc':
-      let obj = world.objs[x[1]].obj[x[2]];
-      let data = x[3];
+      let obj = world.objs[x[2]].obj[x[3]];
+      let data = x[4];
       obj.data = data;
-      obj.calc(true);
+      obj.calc(true, x[1]);
       break;
     case 'new':
-      createObj(x[1], x[2], true);
+      createObj(x[2], x[3], true, x[1]);
       break;
     case 'del':
-      deleteObj(x[1], true);
+      deleteObj(x[2], true, x[1]);
       break;
     case 'event':
-      callEvent(x[1], x[2], true);
+      callEvent(x[2], x[3], true, x[1]);
       break;
   }
 }
 
 function createObj(mdl, id = nid(), x = false) {
-  if (!x) mapUD.push(['new', mdl, id]);
+  if (!x) mapUD.push(['new', pname, mdl, id]);
   try {
     return new Gobj(mdl, id);
   } catch (e) {
@@ -123,16 +123,16 @@ function createObj(mdl, id = nid(), x = false) {
 }
 
 function deleteObj(pid, x) {
-  if (!x) mapUD.push(['del', pid]);
+  if (!x) mapUD.push(['del', pname, pid]);
   delete world.objs[pid];
 }
 
 let eventListen = {};
 
-function callEvent(name, args, x) {
+function callEvent(name, args, x, user = pname) {
   console.log(name, x, args);
-  if (!x) mapUD.push(['event', name, args]);
-  if (eventListen[name]) eventListen[name].forEach(x => x(...args));
+  if (!x) mapUD.push(['event', pname, name, args]);
+  if (eventListen[name]) eventListen[name].forEach(x => x(user, ...args));
 }
 
 function addEvent(name, fn) {
