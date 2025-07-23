@@ -30,7 +30,7 @@ const server = http.createServer(async (req, res) => {
       return res.writeHead(401).end();
     }
 
-    require('child_process').exec("cd ~/voertex/; git pull; pm2 restart voertex", (error) => {
+    require('child_process').exec("cd ~/voertex/; git pull", (error) => {
       if (error) return res.writeHead(500).end();
       console.log('update');
       try {
@@ -45,6 +45,7 @@ const server = http.createServer(async (req, res) => {
         });
       } catch (e) { }
       res.writeHead(200).end();
+      require('child_process').exec('pm2 restart voertex');
     });
   } else req.addListener("end", () => {
     fileServer.serve(req, res);
