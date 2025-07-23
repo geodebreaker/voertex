@@ -262,6 +262,18 @@ function backup() {
 }
 
 process.on("beforeExit", backup);
+process.on("SIGINT", () => {
+  backup();
+  process.exit();
+});
+process.on("SIGTERM", () => {
+  backup();
+  process.exit();
+});
+process.on("SIGILL", () => {
+  backup();
+  process.exit();
+});
 setInterval(backup, 36e5);
 
 function send(ws, data, nolog) {

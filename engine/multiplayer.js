@@ -65,42 +65,9 @@ function recvPackets(packets) {
   })
 }
 
-let WSURL = null;
-
-(async () => {
-  let url = new URL(window.location);
-  let urls = [];
-  url.search = '';
-  url.hash = '';
-  url.protocol = url.protocol == 'http:' ? 'ws' : 'wss';
-  urls[1] = url.href;
-  url.host = 'svr.' + url.host;
-  urls[0] = url.href;
-  for (let i = 0; i < urls.length; i++) {
-    try {
-      let res = await testUrl(urls[i]);
-      if (res) {
-        WSURL = urls[i];
-        connect(res);
-        return
-      }
-    } catch (e) { }
-  }
-  wsfail = 'Could not find server. Please provide server.';
-  let z = () => setTimeout(async () => {
-    try {
-      let url = (location.protocol == 'http:' ? 'ws://' : 'wss://') + prompt('Provide server:');
-      let res = await testUrl(url);
-      if (res) {
-        WSURL = url;
-        connect(res);
-      } else z();
-    } catch (e) {
-      z()
-    }
-  }, 5e2);
-  z();
-})();
+let WSURL = new URL(location.origin);
+WSURL.protocol = WSURL.protocol == 'http:' ? 'ws' : 'wss';
+WSURL = WSURL.href;
 
 let ws = { readyState: WebSocket.CLOSED };
 
@@ -229,42 +196,6 @@ function wsupdate(data) {
   if (data.time) timeOff = data.time - Date.now();
   data.mapUD.map(x => domapUD(x));
   recvPackets(data.packets);
-}
-
-function testUrl(url) {
-  return new Promise(y => {
-    console.log('url');
-    let ws = new WebSocket(url);
-    let hr = false;
-    ws.onmessage = x => {
-      hr = true;
-      try {
-        if (JSON.parse(x.data).type == 'servers') {
-          if (localStorage?.name && params.get('room')) setTimeout(() => joinSvr(params.get('room')), 5e2);
-          else displaySvrs(JSON.parse(x.data).servers);
-          y(ws);
-        } else {
-          ws.close();
-          y(false);
-        }
-      } catch (e) {
-        ws.close();
-        y(false);
-      }
-    };
-    ws.onclose = () => {
-      if (hr) return;
-      hr = true;
-      y(false);
-    }
-    setTimeout(() => {
-      if (hr) return;
-      hr = true;
-      ws.close();
-      y(false);
-      console.log(url)
-    }, 3e3);
-  });
 }
 
 addEvent('game/kick', (u, p, r) => {
