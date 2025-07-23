@@ -68,6 +68,7 @@ function recvPackets(packets) {
 let WSURL = new URL(location.origin);
 WSURL.protocol = WSURL.protocol == 'http:' ? 'ws' : 'wss';
 WSURL = WSURL.href;
+connect();
 
 let ws = { readyState: WebSocket.CLOSED };
 
