@@ -1,14 +1,52 @@
+require("dotenv").config({ quiet: true });
 const http = require("http");
 const static = require("node-static");
 const WebSocket = require("ws");
 const fs = require("fs");
-const NPVER = "0.0";
+const NPVER = "0.1";
 let db = require('./db.js');
 
 const fileServer = new static.Server("");
 
-const server = http.createServer((req, res) => {
-  req.addListener("end", () => {
+const server = http.createServer(async (req, res) => {
+  if (req.url == '/ghhook' && req.method == 'POST') {
+    let body = [];
+    await new Promise((y, n) => {
+      req.on('data', x => {
+        body.push(x);
+      });
+      req.on('end', () => {
+        body = Buffer.concat(body);
+        y();
+      });
+      req.on('close', n);
+      req.on('error', n);
+      setTimeout(n, 10e3);
+    });
+
+    const signature = `sha256=${require('crypto')
+      .createHmac("sha256", process.env.GHHOOK).update(body).digest("hex")}`;
+    if (req.headers["x-hub-signature-256"] !== signature) {
+      return res.writeHead(401).end();
+    }
+
+    require('child_process').exec("cd ~/voertex/; git pull; pm2 restart voertex", (error) => {
+      if (error) return res.writeHead(500).end();
+      console.log('update');
+      try {
+        if (process.env.DCWH) fetch(process.env.DCWH, {
+          method: 'post',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            content: "Updated voertex, check https://" + process.env.DOMAIN + "/"
+          })
+        });
+      } catch (e) { }
+      res.writeHead(200).end();
+    });
+  } else req.addListener("end", () => {
     fileServer.serve(req, res);
   }).resume();
 });

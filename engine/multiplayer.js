@@ -1,4 +1,4 @@
-const NPVER = "0.0";
+const NPVER = "0.1";
 let players = {};
 let buffersendlim = 5;
 let bufferlim = buffersendlim + 1;
