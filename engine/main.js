@@ -41,7 +41,10 @@ let inventory = {
 let holding = 0;
 let items = {
   "(empty)": {},
-}
+};
+let health = 100;
+let maxhealth = 100;
+let dead = false;
 
 let minimenu = null;
 let mmcon = {
@@ -154,6 +157,11 @@ function keyPressed() {
   }
   if (!inmenu && (key == '=' || key == '+'))
     firstperson = !firstperson;
+}
+
+function windowBlur() {
+  keys.alt = false;
+  keys.w = false;
 }
 
 function mousePressed() {
@@ -277,3 +285,5 @@ function html(a, ...c) {
   });
   return a.reduce((x, y, i) => x + y + (b[i] || ''), '');
 }
+
+// cheat: press [s], [d] and [shift] while walking (backwards) into a wall, then tab out and back in

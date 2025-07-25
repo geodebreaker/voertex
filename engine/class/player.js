@@ -48,8 +48,8 @@ class lPlayer extends Player {
   tick(dt) {
     if (this.operm != PERM) {
       this.operm = PERM;
-      if (PERM == 1) this.col = [224, 224, 0];
-      if (PERM == 2) this.col = [64, 48, 96];
+      if (PERM == 1) this.col = [64, 48, 96];
+      if (PERM == 2) this.col = [224, 224, 0];
       if (PERM == 3) this.col = "goober";
     }
     if (this.saytime < now()) {
@@ -103,7 +103,7 @@ class lPlayer extends Player {
     }
     this.yv *= 0.99;
 
-    let rotatedDir = mdir(camYaw, moveDir).mult(Math.min(dt, 100) * 0.06);
+    let rotatedDir = mdir(camYaw, moveDir).mult(Math.min(dt, 150) * 0.06);
 
     onladder = false;
     if (!frozen) tryMove(rotatedDir, this.yv);

@@ -44,7 +44,9 @@ function createPacket() {
       },
       rot: [camYaw, camPitch],
       perm: PERM,
-      inventory
+      inventory,
+      dead,
+      health
     },
     marker: nmarker ? [nmarker.x, nmarker.y] : undefined,
     chat: chatToSend
@@ -71,14 +73,14 @@ WSURL = WSURL.href;
 
 let ws = { readyState: WebSocket.CLOSED };
 
-function connect(iws) {
-  if (!iws) talert = 'Connecting...';
-  else wshasopened = true;
+function connect() {
+  if (wshasopened) talert = 'Connecting...';
+  wshasopened = true;
   ws.onclose = null;
   if (ws.close) ws.close();
-  ws = iws || new WebSocket(WSURL);
+  ws = new WebSocket(WSURL);
   ws.onopen = () => {
-    if (!iws) console.log('connected');
+    console.log('connected');
     joinGame();
   };
   ws.onclose = () => {
@@ -127,7 +129,6 @@ function connect(iws) {
         break;
     }
   };
-  if (iws) console.log('connected');
 }
 
 function joinSvr(svr) {
@@ -143,8 +144,10 @@ function joinSvr(svr) {
 }
 
 function joinGame() {
-  talert = 'Joining...';
-  if (pname && serverid) wssend({ type: 'join', name: pname, svr: serverid, ver: NPVER, kill: localStorage?.kill });
+  if (pname && serverid) {
+    talert = 'Joining...';
+    wssend({ type: 'join', name: pname, svr: serverid, ver: NPVER, kill: localStorage?.kill });
+  }
 }
 
 function wssend(data) {
