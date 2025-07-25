@@ -5,18 +5,23 @@ class Player {
     this.enabled = true;
     this.col = name == 'googer' ? 'goober' : col;
     this.say = null;
+    this.dead = false;
   }
 
   render() {
     if (!this.enabled) return;
     push();
     stroke(0);
-    if (this.col.constructor.name == 'Array')
-      fill(...this.col);
-    else
-      texture(textures[this.col]);
-    translate(this.pos.x, this.pos.y - 25, this.pos.z);
-    box(50);
+    if (this.dead)
+      fill(255, 0, 0);
+    else {
+      if (this.col.constructor.name == 'Array')
+        fill(...this.col);
+      else
+        texture(textures[this.col]);
+    }
+    translate(this.pos.x, this.pos.y - 25 + this.dead * 10, this.pos.z);
+    box(50, 50 - this.dead * 20, 50);
     floatingText(this.name, false);
     if (this.say) {
       translate(0, -35, 0);
@@ -106,7 +111,7 @@ class lPlayer extends Player {
     let rotatedDir = mdir(camYaw, moveDir).mult(Math.min(dt, 150) * 0.06);
 
     onladder = false;
-    if (!frozen) tryMove(rotatedDir, this.yv);
+    if (!frozen && !this.dead) tryMove(rotatedDir, this.yv);
     if (noclip) this.yv = 0;
 
     interact = null;
@@ -179,6 +184,7 @@ class mPlayer extends Player {
       this.ping /= this.pingl.length;
     }
     this.col = packet.col;
+    this.dead = packet.dead;
   }
 
   tick(dt) {

@@ -44,12 +44,12 @@ let items = {
 };
 let health = 100;
 let maxhealth = 100;
-let dead = false;
+let respawn = 5e3;
 
 let minimenu = null;
 let mmcon = {
   main: {
-    Z: ["Respawn", () => { if (!frozen) { player.pos = createVector(0, 0, 0); oldPos = [] } }],
+    Z: ["Respawn", () => { if (!frozen) callEvent('game/die', [true], true) }],
     X: ["Marker", () => nmarker = createVector(player.pos.x, player.pos.z)],
   }
 };
@@ -122,6 +122,8 @@ function draw() {
   resetMatrix();
   drawingContext.disable(drawingContext.DEPTH_TEST);
   translate(-width / 2, -height / 2);
+  if (player?.dead)
+    tintscreen('red');
   if (titlescreen)
     drawTitleScreen();
   drawHUD();
@@ -277,6 +279,18 @@ function pickup(type, data) {
   return true;
 }
 
+function heal(amt, revive = false) {
+  if (player.dead && !revive) return;
+  health += amt;
+  if (health > maxhealth) {
+    // bonushealth = maxhealth - health;
+    health = maxhealth;
+  }
+  if (health <= 0 && !frozen) {
+    callEvent('game/die', [], true);
+  }
+}
+
 function html(a, ...c) {
   let d = document.createElement('x');
   let b = c.map(x => {
@@ -287,3 +301,17 @@ function html(a, ...c) {
 }
 
 // cheat: press [s], [d] and [shift] while walking (backwards) into a wall, then tab out and back in
+
+addEvent('game/die', fr => {
+  health = 0;
+  player.dead = true;
+  if (respawn !== false || fr) 
+    setTimeout(() => callEvent('game/respawn', [], true), respawn === false ? 5e3 : respawn);
+});
+
+addEvent('game/respawn', () => {
+  player.pos = createVector(0, 0, 0);
+  player.dead = false;
+  health = maxhealth;
+  oldPos = [];
+});

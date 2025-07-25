@@ -54,7 +54,7 @@ function drawHUD() {
   pop();
 
   push();
-  translate(width - 15, height - 15);
+  translate(width - 15, height - 30);
   textAlign(RIGHT, BOTTOM);
   textSize(12);
   txt = (minimenu ? Object.entries(mmcon[minimenu]).map(x => `${x[1][0]} [${x[0]}]`).join('\n') :
@@ -65,9 +65,19 @@ function drawHUD() {
   twidth = textWidth(txt);
   theight = textLeading() * (txt.split('\n').length);
   fill(0, 0, 0, 128);
-  rect(-twidth - 5, -theight - 5, twidth + 10, theight + 10);
+  rect(-twidth - 5, -theight - 5, twidth + 10, theight + 25);
   fill(255);
   text(txt, 0, 0);
+  fill(255);
+  let f = () => rect(-twidth, 2, twidth * health / maxhealth, 12);
+  f();
+  textSize(10);
+  textAlign(LEFT, TOP);
+  fill(255);
+  text(health, -twidth + 1, 2);
+  clip(f);
+  fill(0);
+  text(health, -twidth + 1, 2);
   pop();
 
   push();
@@ -119,6 +129,13 @@ function drawTitleScreen() {
   translate(-textWidth('OERTEX') / 2 - 60, 20, 45);
   image(textures.opaque, 0, 0);
   pop();
+}
+
+function tintscreen(col, opacity = 64) {
+  col = color(col);
+  col.setAlpha(opacity);
+  fill(col);
+  rect(0, 0, width, height);
 }
 
 function makeTitleScreen() {

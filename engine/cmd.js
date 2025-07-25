@@ -16,6 +16,7 @@ qm money
 /mx give money to player
 /mz bring to admin room
 /mc freeze player
+/mk kill player
 */
 
 addEvent('cmd/ex', (u, p, x, ...d) => {
@@ -82,8 +83,12 @@ let cmds = {
   },
   givemoney(amt, who) {
     if (!this.FE && PERM < 2) return "NPERM";
-    if (!who || this.FE) money += parseInt(amt) || 0;
+    if (!who || this.FE) callEvent()
     else callEvent('cmd/ex', [who, 'givemoney', amt]);
+  },
+  kill(who) {
+    if (!who || this.FE) callEvent('game/die', [], true);
+    else callEvent('cmd/ex', [who, 'kill']);
   },
   perm(who, pd) {
     if (PERM < 3) return "NPERM";
@@ -141,12 +146,13 @@ registerMM(['Bring', async () => cmdb('bring', await ask('Bring who?'), await as
 registerMM(['Return', async () => cmdb('return', await ask('Return who?'))], 'E', 'cmd/tp');
 
 mmcon['cmd/um'] = {};
+registerMM(['Kill', async () => cmdb('kill', await ask('Kill who?'))], 'K', 'cmd/um');
+registerMM(['Freeze', async () => cmdb('freeze', await ask('Freeze who?'))], 'C', 'cmd/um');
+registerMM(['Give Money', async () => cmdb('givemoney', await ask('Amount?'), await ask('To who?'))], 'X', 'cmd/um');
+registerMM(['Admin Room', async () => cmdb('aroom', await ask('Who to bring to admin room?') || true)], 'Z', 'cmd/um');
 registerMM(['Kick', async () => cmdb('kick', await ask('Kick who?'), await ask('Why?'))], 'O', 'cmd/um');
 registerMM(['Ban', async () => cmdb('ban', await ask('Ban who?'), await ask('Why?'))], 'P', 'cmd/um');
 registerMM(['Perms', async () => cmdb('perm', await ask('Who?'), await ask('0: user, 1: editor, 2: admin'))], 'L', 'cmd/um');
-registerMM(['Give Money', async () => cmdb('givemoney', await ask('Amount?'), await ask('To who?'))], 'X', 'cmd/um');
-registerMM(['Admin Room', async () => cmdb('aroom', await ask('Who to bring to admin room?') || true)], 'Z', 'cmd/um');
-registerMM(['Freeze', async () => cmdb('freeze', await ask('Freeze who?'))], 'C', 'cmd/um');
 registerMM(['Reset', () => cmd('reset')], '|', 'cmd/um');
 
 // speedcheats

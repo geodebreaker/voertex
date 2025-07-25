@@ -45,9 +45,10 @@ function createPacket() {
       rot: [camYaw, camPitch],
       perm: PERM,
       inventory,
-      dead,
+      dead: player.dead,
       health
     },
+    dead: player.dead,
     marker: nmarker ? [nmarker.x, nmarker.y] : undefined,
     chat: chatToSend
   };
